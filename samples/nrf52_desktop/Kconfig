@@ -1,0 +1,12 @@
+# Kconfig - nRF52 Desktop configuration
+
+menu "nRF52 Desktop"
+rsource "src/drivers/Kconfig"
+rsource "src/events/Kconfig"
+rsource "src/modules/Kconfig"
+rsource "src/services/Kconfig"
+endmenu
+
+menu "Zephyr kernel"
+source "$ZEPHYR_BASE/Kconfig.zephyr"
+endmenu
