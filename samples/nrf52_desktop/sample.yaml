@@ -1,0 +1,8 @@
+sample:
+  description: TBD
+  name: TBD
+tests:
+  test:
+    harness: bluetooth
+    platform_whitelist: nrf52_desktop_dongle nrf52_desktop_mouse nrf52_desktop_keyboard
+    tags: bluetooth
