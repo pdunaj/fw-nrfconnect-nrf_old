@@ -1,8 +1,8 @@
 sample:
-  description: TBD
-  name: TBD
+  description: nRF52 Desktop
+  name: BLE HID device reference design
+  platform: nrf52_pca20041
 tests:
   test:
-    harness: bluetooth
-    platform_whitelist: nrf52_desktop_dongle nrf52_desktop_mouse nrf52_desktop_keyboard
+    build_only: true
     tags: bluetooth
