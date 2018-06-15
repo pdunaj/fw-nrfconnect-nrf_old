@@ -6,10 +6,9 @@ rm -r build
 # TODO: accept ninja as optional argument, create a batch script for Windows
 #       with ninja as default
 
-for board in mouse keyboard dongle
+for board in nrf52_pca20041 nrf52_desktop_keyboard nrf52_desktop_dongle
 do
-    mkdir -p build/nrf52_desktop_$board
+    mkdir -p build/$board
 
-    ( cd build/nrf52_desktop_$board &&
-      cmake ../.. -DBOARD=nrf52_desktop_$board )
+    ( cd build/$board && cmake ../.. -DBOARD=$board )
 done

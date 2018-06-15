@@ -9,7 +9,7 @@
 #include <nordic/nrf52832.dtsi>
 
 / {
-	model = "Nordic nRF52 Desktop - mouse board";
+	model = "Nordic PCA20041";
 	compatible = "nordic,pca10040-dk", "nordic,nrf52832-qfaa",
 		     "nordic,nrf52832";
 

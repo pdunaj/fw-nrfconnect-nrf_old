@@ -1,5 +1,5 @@
-identifier: nrf52_desktop_mouse
-name: nRF52 Desktop mouse
+identifier: nrf52_pca20041
+name: nRF52-PCA20041
 type: mcu
 arch: arm
 toolchain:

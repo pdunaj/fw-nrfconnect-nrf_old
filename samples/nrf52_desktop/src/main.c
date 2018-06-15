@@ -13,7 +13,7 @@
 #define SYS_LOG_DOMAIN	MODULE_NAME
 #include <logging/sys_log.h>
 
-#if !defined(CONFIG_BOARD_NRF52_DESKTOP_MOUSE)    && \
+#if !defined(CONFIG_BOARD_NRF52_PCA20041)         && \
     !defined(CONFIG_BOARD_NRF52_DESKTOP_KEYBOARD) && \
     !defined(CONFIG_BOARD_NRF52_DESKTOP_DONGLE)
 #error "Please select nRF52 Desktop board"
