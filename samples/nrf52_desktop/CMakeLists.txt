@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2018 Nordic Semiconductor
+#
+# SPDX-License-Identifier: BSD-5-Clause-Nordic
+#
+
 set(KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Kconfig)
 set(BOARD_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 

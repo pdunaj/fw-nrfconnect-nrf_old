@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2018 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: BSD-5-Clause-Nordic
+ */
+
 #ifndef _POWER_EVENT_H_
 #define _POWER_EVENT_H_
 

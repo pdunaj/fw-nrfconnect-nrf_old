@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2018 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: BSD-5-Clause-Nordic
+ */
+
 #include "event_manager.h"
 #include "module_event.h"
 

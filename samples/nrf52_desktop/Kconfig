@@ -1,4 +1,8 @@
-# Kconfig - nRF52 Desktop configuration
+#
+# Copyright (c) 2018 Nordic Semiconductor
+#
+# SPDX-License-Identifier: BSD-5-Clause-Nordic
+#
 
 menu "nRF52 Desktop"
 rsource "src/drivers/Kconfig"

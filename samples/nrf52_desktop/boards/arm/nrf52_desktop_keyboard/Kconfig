@@ -1,8 +1,8 @@
-# Kconfig - nRF52 Desktop keyboard board configuration
 #
-# Copyright (c) 2018 Nordic Semiconductor ASA
+# Copyright (c) 2018 Nordic Semiconductor
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: BSD-5-Clause-Nordic
+#
 
 if BOARD_NRF52_DESKTOP_KEYBOARD
 

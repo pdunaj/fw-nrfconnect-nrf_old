@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2018 Nordic Semiconductor
+#
+# SPDX-License-Identifier: BSD-5-Clause-Nordic
+#
+
 menu "Event Manager"
 
 config DESKTOP_EVENT_MANAGER_SHOW_EVENTS
