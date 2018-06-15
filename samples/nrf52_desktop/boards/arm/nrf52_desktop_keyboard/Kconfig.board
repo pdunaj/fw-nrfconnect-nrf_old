@@ -1,9 +1,0 @@
-# Kconfig - nRF52 Desktop keyboard board configuration
-#
-# Copyright (c) 2018 Nordic Semiconductor ASA
-#
-# SPDX-License-Identifier: Apache-2.0
-
-config  BOARD_NRF52_DESKTOP_KEYBOARD
-	bool "nRF52 Desktop keyboard"
-	depends on SOC_NRF52832_QFAA
