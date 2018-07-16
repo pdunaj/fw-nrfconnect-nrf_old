@@ -8,7 +8,9 @@
 #include <misc/dlist.h>
 #include <misc/printk.h>
 
+
 #include <event_manager.h>
+#include <event_logger.h>
 
 
 static void event_processor_fn(struct k_work *work);
@@ -54,6 +56,9 @@ static void event_processor_fn(struct k_work *work)
 			if (et->print_event) {
 				et->print_event(eh);
 			}
+			#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
+			log_event_exec(eh);
+			#endif
 			printk("\n");
 		}
 
@@ -84,7 +89,9 @@ static void event_processor_fn(struct k_work *work)
 				}
 			}
 		}
-
+		#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
+			log_event_end(eh);
+		#endif		
 		k_free(eh);
 	}
 
@@ -99,9 +106,17 @@ void _event_submit(struct event_header *eh)
 	unsigned int flags = irq_lock();
 
 	sys_dlist_append(&eventq, &eh->node);
+	
+	#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS	
+	const struct event_type *et = eh->type_id;
+	if (et->log_event)
+	{
+		et->log_event(eh);
+	}	
+	#endif
 
 	irq_unlock(flags);
-
+	
 	k_work_submit(&event_processor);
 }
 
@@ -156,6 +171,14 @@ static void event_manager_show_subscribers(void)
 
 int event_manager_init(void)
 {
+#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
+	#ifdef CONFIG_SYSVIEW_INITIALIZATION
+		SEGGER_SYSVIEW_Conf();
+		//SEGGER_SYSVIEW_Start();
+	#endif
+	SEGGER_SYSVIEW_RegisterModule(&events);
+#endif
+
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
 		event_manager_show_subscribers();

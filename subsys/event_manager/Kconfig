@@ -47,6 +47,20 @@ config DESKTOP_SYS_LOG_EVENT_MANAGER_LEVEL
 	  - 3 INFO, write SYS_LOG_INF in addition to previous levels
 	  - 4 DEBUG, write SYS_LOG_DBG in addition to previous levels
 
+config SYSVIEW_LOG_CUSTOM_EVENTS
+	bool "Send events to SystemView"
+	default n
+
+config SYSVIEW_INITIALIZATION
+	bool "Initialize and config SysView on start"
+	default n
+	select CONFIG_RTT_CONSOLE
+	select CONFIG_SEGGER_SYSTEMVIEW
+
 endif # EVENT_MANAGER
 
 endmenu
+
+#if (SYSVIEW_LOG_CUSTOM_EVENTS && ~SEGGER_SYSTEMVIEW)
+#	message(FATAL_ERROR "SystemView has to be configurated in order to log custom events"
+#endif
