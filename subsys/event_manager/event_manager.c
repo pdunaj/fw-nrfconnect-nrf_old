@@ -50,15 +50,15 @@ static void event_processor_fn(struct k_work *work)
 		ASSERT_EVENT_ID(eh->type_id);
 
 		const struct event_type *et = eh->type_id;
-
+		#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
+		log_event_exec(eh);
+		#endif
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
 			if (et->print_event) {
 				et->print_event(eh);
 			}
-			#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
-			log_event_exec(eh);
-			#endif
+
 			printk("\n");
 		}
 
@@ -178,7 +178,7 @@ int event_manager_init(void)
 		SEGGER_SYSVIEW_Start();
 		#endif
 	#endif
-	events.NumEvents = __stop_event_types - __start_event_types;
+	events.NumEvents = (__stop_event_types - __start_event_types)/sizeof(struct event_type);
 	SEGGER_SYSVIEW_RegisterModule(&events);
 #endif
 
