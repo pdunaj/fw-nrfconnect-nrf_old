@@ -66,6 +66,7 @@
 #include <misc/__assert.h>
 
 #include <event_manager_priv.h>
+#include <event_logger.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -261,6 +262,14 @@ void _event_submit(struct event_header *eh);
  */
 int event_manager_init(void);
 
+u32_t inline get_event_id(const struct event_header *eh)
+{
+       #ifdef CONFIG_SRAM_BASE_ADDRESS
+                return (u32_t)(eh - CONFIG_SRAM_BASE_ADDRESS);
+        #else
+                return (u32_t)eh;
+        #endif
+}
 
 #ifdef __cplusplus
 }
