@@ -14,6 +14,7 @@
  */
 
 #include "event_manager.h"
+#include "event_logger.h"
 
 #ifdef __cplusplus
 extern "C" {

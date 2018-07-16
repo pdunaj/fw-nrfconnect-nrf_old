@@ -15,4 +15,11 @@ static void print_event(const struct event_header *eh)
 			(event->pressed)?("pressed"):("released"));
 }
 
-EVENT_TYPE_DEFINE(button_event, print_event, NULL);
+static void log_event(const struct event_header *eh)
+{
+	struct button_event *event = cast_button_event(eh);
+	SEGGER_SYSVIEW_RecordU32x3(events.EventOffset+2, get_event_id(eh), event->key_id, (event->pressed)?(1):(0));
+}
+
+
+EVENT_TYPE_DEFINE(button_event, print_event, log_event);
