@@ -174,7 +174,9 @@ int event_manager_init(void)
 #ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
 	#ifdef CONFIG_SYSVIEW_INITIALIZATION
 		SEGGER_SYSVIEW_Conf();
-		//SEGGER_SYSVIEW_Start();
+		#ifdef CONFIG_SYSVIEW_START_LOGGING_ON_SYSTEM_START		
+		SEGGER_SYSVIEW_Start();
+		#endif
 	#endif
 	SEGGER_SYSVIEW_RegisterModule(&events);
 #endif

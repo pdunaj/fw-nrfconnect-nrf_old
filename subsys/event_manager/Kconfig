@@ -52,10 +52,15 @@ config SYSVIEW_LOG_CUSTOM_EVENTS
 	default n
 
 config SYSVIEW_INITIALIZATION
-	bool "Initialize and config SysView on start"
+	bool "Initialize and config SystemView on start"
+	depends on SYSVIEW_LOG_CUSTOM_EVENTS
 	default n
 	select CONFIG_RTT_CONSOLE
 	select CONFIG_SEGGER_SYSTEMVIEW
+
+config SYSVIEW_START_LOGGING_ON_SYSTEM_START
+	bool "Start logging on system start"
+	depends on SYSVIEW_INITIALIZATION
 
 endif # EVENT_MANAGER
 
