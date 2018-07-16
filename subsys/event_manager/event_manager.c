@@ -178,6 +178,7 @@ int event_manager_init(void)
 		SEGGER_SYSVIEW_Start();
 		#endif
 	#endif
+	events.NumEvents = __stop_event_types - __start_event_types;
 	SEGGER_SYSVIEW_RegisterModule(&events);
 #endif
 

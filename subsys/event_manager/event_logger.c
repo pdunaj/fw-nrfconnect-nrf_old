@@ -81,7 +81,7 @@ void SEGGER_SYSVIEW_Conf(void)
 static void event_module_description(void);
 struct SEGGER_SYSVIEW_MODULE_STRUCT events = {
                 .sModule = "M=EventManager",
-                .NumEvents = 7,
+                .NumEvents = 0,
                 .EventOffset = 0,
                 .pfSendModuleDesc = event_module_description,
                 .pNext = NULL
