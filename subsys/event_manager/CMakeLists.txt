@@ -5,4 +5,3 @@
 #
 
 zephyr_sources(event_manager.c)
-zephyr_sources_ifdef(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS event_logger.c)

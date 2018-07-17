@@ -1,0 +1,40 @@
+menu "SysView profiler"
+
+config SYSVIEW_INITIALIZATION
+	bool "Initialize and config SystemView on start"
+	default n
+	select RTT_CONSOLE
+	select SEGGER_SYSTEMVIEW
+
+config SYSVIEW_LOG_KERNEL_EVENTS	
+	bool "Log kernel events in SysView"
+	depends on SYSVIEW_INITIALIZATION
+	default n
+
+config SYSVIEW_LOG_KERNEL_EVENTS_CONTEXT_SWITCH
+	bool "Log context switch events"
+	depends on SYSVIEW_LOG_KERNEL_EVENTS
+
+config SYSVIEW_LOG_KERNEL_EVENTS_INTERRUPT
+	bool "Log interrupt events"
+	depends on SYSVIEW_LOG_KERNEL_EVENTS
+
+config SYSVIEW_LOG_KERNEL_EVENTS_SLEEP
+	bool "Log sleep events"
+	depends on SYSVIEW_LOG_KERNEL_EVENTS
+
+config SYSVIEW_LOG_KERNEL_EVENTS_THREAD
+	bool "Log thread events"
+	depends on SYSVIEW_LOG_KERNEL_EVENTS
+
+config SYSVIEW_LOG_CUSTOM_EVENTS
+	bool "Log custom events in SysView"
+	depends on SYSVIEW_INITIALIZATION
+	default n
+
+config SYSVIEW_START_LOGGING_ON_SYSTEM_START
+	bool "Start logging on system start"
+	depends on SYSVIEW_INITIALIZATION
+	default n
+
+endmenu
