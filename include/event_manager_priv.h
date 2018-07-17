@@ -142,7 +142,7 @@ extern "C" {
 	_EVENT_TYPECHECK_FN(ename)
 
 
-#define _EVENT_TYPE_DEFINE(ename, print_fn, log_fn)										\
+#define _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc)										\
 	_EVENT_SUBSCRIBERS_DEFINE(ename);										\
 	const struct event_type _CONCAT(__event_type_, ename) __used							\
 	__attribute__((__section__("event_types"))) = {									\
@@ -159,6 +159,7 @@ extern "C" {
 		},													\
 		.print_event			= print_fn,								\
 		.log_event			= log_fn,								\
+		.description			= desc,									\
 	}
 
 

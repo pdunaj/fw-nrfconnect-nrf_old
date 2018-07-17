@@ -142,8 +142,11 @@ struct event_type {
 	/** Function to print this event. */
 	void (*print_event)(const struct event_header *eh);
 
-	/** Functin to log this event */
-	void (*log_event)(const struct event_header *eh);
+	/** Function to log this event */
+	void (*log_event)(const struct event_header *eh, uint16_t event_type_id);
+
+	/** Event description */
+	const char *description;
 };
 
 
@@ -219,7 +222,7 @@ extern const struct event_type __stop_event_types[];
  * @param ename     Name of the event.
  * @param print_fn  Function to stringify event of this type.
  */
-#define EVENT_TYPE_DEFINE(ename, print_fn, log_fn) _EVENT_TYPE_DEFINE(ename, print_fn, log_fn)
+#define EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc) _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc)
 
 
 /** @def ASSERT_EVENT_ID

@@ -111,7 +111,7 @@ void _event_submit(struct event_header *eh)
 	const struct event_type *et = eh->type_id;
 	if (et->log_event)
 	{
-		et->log_event(eh);
+		et->log_event(eh, events.EventOffset + NUMBER_OF_PREDEFINED_EVENTS + et - __start_event_types);
 	}	
 	#endif
 
@@ -178,7 +178,7 @@ int event_manager_init(void)
 		SEGGER_SYSVIEW_Start();
 		#endif
 	#endif
-	events.NumEvents = (__stop_event_types - __start_event_types)/sizeof(struct event_type);
+	events.NumEvents = (__stop_event_types - __start_event_types);
 	SEGGER_SYSVIEW_RegisterModule(&events);
 #endif
 

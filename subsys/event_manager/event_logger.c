@@ -1,8 +1,6 @@
 #include <event_logger.h>
 #include <event_manager.h>
 
-/* Services provided to SYSVIEW by Zephyr */
-extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
 
 static void send_task_list_cb(void)
 {
@@ -38,7 +36,7 @@ static U64 get_time_cb(void)
 	return (U64)k_cycle_get_32();
 }
 
-
+/* Services provided to SYSVIEW by Zephyr */
 const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI = {
 	get_time_cb,
 	send_task_list_cb,
@@ -88,13 +86,17 @@ struct SEGGER_SYSVIEW_MODULE_STRUCT events = {
         };
 
 static void event_module_description(void) {
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "0 event_execution event_id=%u");
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "1 event_end event_id=%u");
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "2 button_event event_id=%u button_id=%u status=%u");
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "3 motion_event event_id=%u dx=%d dy=%d");
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "4 battery_event event_id=%u level=%u");
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "5 hid_axis_event event_id=%u x=%d u=%d");
-        SEGGER_SYSVIEW_RecordModuleDescription(&events, "6 keep_active_event event_id=%u");
+	SEGGER_SYSVIEW_RecordModuleDescription(&events, "0 event_execution event_id=%u");
+        SEGGER_SYSVIEW_RecordModuleDescription(&events, "1 event_end event_id=%u");	
+	for (const struct event_type *et = __start_event_types;
+	    (et != NULL) && (et != __stop_event_types);
+	    et++) 
+	{
+		if (et->description)
+		{
+			send_event_description(et, NUMBER_OF_PREDEFINED_EVENTS + et - __start_event_types);	
+		}
+	}
 }
 
 void log_event_exec(const struct event_header *eh)
@@ -105,5 +107,25 @@ void log_event_exec(const struct event_header *eh)
 void log_event_end(const struct event_header *eh)
 {
         SEGGER_SYSVIEW_RecordU32(events.EventOffset+1, get_event_id(eh));
+}
+
+void send_event_description(const struct event_type* et, uint16_t event_id)
+{
+	uint8_t description_length = strlen(et->description);
+	if (NULL == et->description)
+	{
+		return;
+	}
+	char res[description_length+6];
+	sprintf(res, "%u", event_id);
+	uint8_t i = 0;
+	while(res[i] != '\0')
+	{
+		i++;
+	}
+	res[i++] = ' '; 
+	memcpy(res + i, et->description, description_length);
+	res[i+description_length] = '\0';
+	SEGGER_SYSVIEW_RecordModuleDescription(&events, res);
 }
 
