@@ -66,7 +66,8 @@
 #include <misc/__assert.h>
 
 #include <event_manager_priv.h>
-#include <event_logger.h>
+#include <sysview_custom_event_logger.h>
+#include <sysview_kernel_event_logger.h>
 
 #ifdef __cplusplus
 extern "C" {

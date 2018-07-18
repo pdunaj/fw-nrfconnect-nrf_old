@@ -1,5 +1,5 @@
-#ifndef _EVENT_LOGGER_H_
-#define _EVENT_LOGGER_H_
+#ifndef _SYSVIEW_CUSTOM_EVENT_LOGGER_H_
+#define _SYSVIEW_CUSTOM_EVENT_LOGGER_H_
 
 #include <zephyr.h>
 #include <systemview/SEGGER_SYSVIEW.h>
@@ -21,4 +21,4 @@ void SEGGER_SYSVIEW_Conf(void);
 #endif
 
 
-#endif /* _EVENT_LOGGER_H_ */
+#endif /* _SYSVIEW_CUSTOM_EVENT_LOGGER_H_ */

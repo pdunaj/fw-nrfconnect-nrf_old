@@ -8,10 +8,7 @@
 #include <misc/dlist.h>
 #include <misc/printk.h>
 
-
 #include <event_manager.h>
-#include <event_logger.h>
-
 
 static void event_processor_fn(struct k_work *work);
 
@@ -171,16 +168,22 @@ static void event_manager_show_subscribers(void)
 
 int event_manager_init(void)
 {
-#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
 	#ifdef CONFIG_SYSVIEW_INITIALIZATION
 		SEGGER_SYSVIEW_Conf();
 		#ifdef CONFIG_SYSVIEW_START_LOGGING_ON_SYSTEM_START		
-		SEGGER_SYSVIEW_Start();
+			SEGGER_SYSVIEW_Start();
 		#endif
 	#endif
-	events.NumEvents = (__stop_event_types - __start_event_types);
-	SEGGER_SYSVIEW_RegisterModule(&events);
-#endif
+
+	#ifdef CONFIG_SYSVIEW_LOG_KERNEL_EVENTS
+		kernel_event_logger_init();
+	#endif
+
+	#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
+		events.NumEvents = (__stop_event_types - __start_event_types);
+		SEGGER_SYSVIEW_RegisterModule(&events);
+	#endif
+
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
