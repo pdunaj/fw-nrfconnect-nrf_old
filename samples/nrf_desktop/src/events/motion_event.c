@@ -15,10 +15,8 @@ static void print_event(const struct event_header *eh)
 
 static void log_event(const struct event_header *eh, uint16_t event_type_id)
 {
-	#ifdef CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS
 	struct motion_event *event = cast_motion_event(eh);
 	SEGGER_SYSVIEW_RecordU32x3(event_type_id, get_event_id(eh), event->dx, event->dy);
-	#endif
 }
 
 static const char description[] = "motion_event event_id=%u dx=%d dy=%d";
