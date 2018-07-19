@@ -18,7 +18,10 @@ static void print_event(const struct event_header *eh)
 static void log_event(const struct event_header *eh, uint16_t event_type_id)
 {
 	//struct keep_active_event *event = cast_keep_active_event(eh);
-	SEGGER_SYSVIEW_RecordU32(event_type_id, get_event_id(eh));
+	
+	event_log_start(1);
+	event_log_add_event_id(eh);
+	event_log_send(event_type_id);
 }
 
 static const char description[] = "keep_active_event event_id=%u";
