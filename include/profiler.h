@@ -7,7 +7,6 @@
 #ifndef _PROFILER_H_
 #define _PROFILER_H_
 
-#define LOG_BUFFER_LENGTH 128
 
 #include <zephyr.h>
 #include <systemview/SEGGER_SYSVIEW.h>
@@ -16,7 +15,7 @@
 struct log_event_buf
 {
 	U8* pPayload;
-	U8 pPayloadStart[LOG_BUFFER_LENGTH];
+	U8 pPayloadStart[CONFIG_CUSTOM_EVENT_BUF_LEN];
 };
 
 u32_t inline get_event_id(const void *eh)
