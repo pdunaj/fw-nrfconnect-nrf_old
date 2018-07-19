@@ -103,6 +103,8 @@ void _event_submit(struct event_header *eh)
 	unsigned int flags = irq_lock();
 
 	sys_dlist_append(&eventq, &eh->node);
+
+	irq_unlock(flags);
 	
 	if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
 		const struct event_type *et = eh->type_id;
@@ -111,8 +113,6 @@ void _event_submit(struct event_header *eh)
 		}	
 	}
 
-	irq_unlock(flags);
-	
 	k_work_submit(&event_processor);
 }
 

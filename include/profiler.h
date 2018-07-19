@@ -7,9 +7,17 @@
 #ifndef _PROFILER_H_
 #define _PROFILER_H_
 
+#define LOG_BUFFER_LENGTH 128
+
 #include <zephyr.h>
 #include <systemview/SEGGER_SYSVIEW.h>
 #include <rtt/SEGGER_RTT.h>
+
+struct log_event_buf
+{
+	U8* pPayload;
+	U8 pPayloadStart[LOG_BUFFER_LENGTH];
+};
 
 u32_t inline get_event_id(const void *eh)
 {
@@ -20,10 +28,9 @@ u32_t inline get_event_id(const void *eh)
         #endif
 }
 
-void event_log_start();
-void event_log_add_u32(u32_t data);
-void event_log_add_s32(s32_t data);
-void event_log_add_event_id(const void *eh);
-void event_log_send(u16_t event_type_id);
+void event_log_start(struct log_event_buf* b);
+void event_log_add_32(u32_t data, struct log_event_buf* b);
+void event_log_add_event_id(const void *eh, struct log_event_buf* b);
+void event_log_send(u16_t event_type_id, struct log_event_buf* b);
 
 #endif
