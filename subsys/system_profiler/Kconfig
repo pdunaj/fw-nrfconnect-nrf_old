@@ -1,4 +1,8 @@
-menu "SysView profiler"
+menu "System profiler"
+
+config SYSTEM_PROFILER
+	bool"Enable system profiler"
+	default n
 
 config SYSVIEW_INITIALIZATION
 	bool "Initialize and config SystemView on start"

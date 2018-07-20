@@ -8,4 +8,4 @@ add_subdirectory_ifdef(CONFIG_NRF_BT bluetooth)
 
 add_subdirectory_if_kconfig(event_manager)
 
-add_subdirectory_ifdef(CONFIG_SYSVIEW_INITIALIZATION sysview_event_logger)
+add_subdirectory_ifdef(CONFIG_SYSVIEW_INITIALIZATION system_profiler)

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-5-Clause-Nordic
  */
 
-#include <profiler.h>
+#include <system_profiler.h>
 #include <sysview_custom_event_logger.h>
 
 void profiler_init()
