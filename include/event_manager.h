@@ -143,7 +143,7 @@ struct event_type {
 	void (*print_event)(const struct event_header *eh);
 
 	/** Function to log this event */
-	void (*log_event)(const struct event_header *eh, uint16_t event_type_id);
+	void (*log_args)(const struct event_header* eh, struct log_event_buf *buf);
 
 	/** Event description */
 	const char *description;

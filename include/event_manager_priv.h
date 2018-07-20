@@ -158,7 +158,7 @@ extern "C" {
 			[_SUBS_PRIO_FINAL]	= _EVENT_SUBSCRIBERS_STOP(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL)),	\
 		},													\
 		.print_event			= print_fn,								\
-		.log_event			= log_fn,								\
+		.log_args			= log_fn,								\
 		.description			= desc,									\
 	}
 

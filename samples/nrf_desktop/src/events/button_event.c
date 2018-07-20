@@ -15,19 +15,14 @@ static void print_event(const struct event_header *eh)
 			(event->pressed)?("pressed"):("released"));
 }
 
-static void log_event(const struct event_header *eh, uint16_t event_type_id)
+static void log_args(const struct event_header *eh, struct log_event_buf *buf)
 {
 	struct button_event *event = cast_button_event(eh);
-
-	struct log_event_buf b;
-	event_log_start(&b);
-	event_log_add_event_mem_address(eh, &b);
-	event_log_add_32(event->key_id, &b);
-	event_log_add_32((event->pressed)?(1):(0), &b);
-	event_log_send(event_type_id, &b);
+	event_log_add_32(event->key_id, buf);
+	event_log_add_32((event->pressed)?(1):(0), buf);
 }
 
 static const char description[] = "button_event event_id=%u button_id=%u status=%u";
 
 
-EVENT_TYPE_DEFINE(button_event, print_event, log_event, description);
+EVENT_TYPE_DEFINE(button_event, print_event, log_args, description);

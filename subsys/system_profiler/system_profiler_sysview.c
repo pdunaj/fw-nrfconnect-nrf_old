@@ -6,6 +6,7 @@
 
 #include <system_profiler.h>
 
+
 void system_profiler_init(uint16_t num_events)
 {
 	if (IS_ENABLED(CONFIG_SYSVIEW_INITIALIZATION)) {
@@ -37,10 +38,10 @@ void system_profiler_event_exec_end(const void *event_mem_addres)
         SEGGER_SYSVIEW_RecordU32(events.EventOffset+1, get_event_id(event_mem_addres));
 }
 
-void system_profiler_event_submit(const void *event_mem_addres, u16_t event_type_id, void (*log_event)(const struct event_header * eh, u16_t event_type_id) )
+void system_profiler_event_submit(const struct event_header* eh, u16_t event_type_id, void (*log_event)(const struct event_header* eh, u16_t event_type_id) )
 {
 	if (log_event){
-		log_event(event_mem_addres, events.EventOffset + NUMBER_OF_PREDEFINED_EVENTS + event_type_id);
+		log_event(eh, events.EventOffset + NUMBER_OF_PREDEFINED_EVENTS + event_type_id);
 	}
 }
 
@@ -61,7 +62,7 @@ void event_log_add_event_mem_address(const void *event_mem_addres, struct log_ev
 
 void event_log_send(u16_t event_type_id, struct log_event_buf* b)
 {
-	SEGGER_SYSVIEW_SendPacket(b->pPayloadStart, b->pPayload, event_type_id);
+	SEGGER_SYSVIEW_SendPacket(b->pPayloadStart, b->pPayload, event_type_id + events.EventOffset + 2);
 }
 
 

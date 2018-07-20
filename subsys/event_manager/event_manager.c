@@ -108,7 +108,13 @@ void _event_submit(struct event_header *eh)
 	
 	if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
 		const struct event_type *et = eh->type_id;
-		system_profiler_event_submit (eh, et - __start_event_types, et->log_event);			
+		if(et->log_args) {		
+			struct log_event_buf buf;
+			event_log_start(&buf);
+			event_log_add_event_mem_address(eh, &buf);
+			et->log_args(eh, &buf);
+			event_log_send(et - __start_event_types, &buf);
+		}			
 	}
 	k_work_submit(&event_processor);
 }

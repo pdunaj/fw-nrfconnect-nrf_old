@@ -1,9 +1,21 @@
 menu "System profiler"
 
 config SYSTEM_PROFILER
-	bool"Enable system profiler"
+	bool"Enable system profiler (please choose one)"
 	default n
 
+config CUSTOM_EVENT_BUF_LEN
+	int "Length of data buffer for custom event data(in bytes)"
+	depends on SYSTEM_PROFILER
+	default 64
+
+config SYSTEM_PROFILER_SYSVIEW
+	depends on SYSTEM_PROFILER	
+	bool"Enable SysView system profiler"	
+	default n
+
+menu "SysView advanced"
+	depends on SYSTEM_PROFILER_SYSVIEW
 config SYSVIEW_INITIALIZATION
 	bool "Initialize and config SystemView on start"
 	default n
@@ -12,16 +24,12 @@ config SYSVIEW_INITIALIZATION
 
 config SYSVIEW_LOG_KERNEL_EVENTS	
 	bool "Log kernel events in SysView"
-	depends on SYSVIEW_INITIALIZATION
 	select KERNEL_EVENT_LOGGER
 	select TASK_MONITOR
 	select THREAD_MONITOR
 	select RING_BUFFER
 	default n
 
-menu "Advanced"
-	depends on SYSVIEW_LOG_KERNEL_EVENTS
-	
 config KERNEL_EVENT_LOGGER_BUFFER_SIZE
 	int "Size of kernel event buffer"
 	default 16
@@ -47,21 +55,24 @@ config SYSVIEW_LOG_KERNEL_EVENTS_THREAD
 	select KERNEL_EVENT_LOGGER_THREAD
 	default y
 
-endmenu
-
 config SYSVIEW_LOG_CUSTOM_EVENTS
 	bool "Log custom events in SysView"
 	depends on SYSVIEW_INITIALIZATION
 	default n
 
-config CUSTOM_EVENT_BUF_LEN
-	int "Length of data buffer for custom event data(in bytes)"
-	depends on SYSVIEW_LOG_CUSTOM_EVENTS
-	default 64
-
 config SYSVIEW_START_LOGGING_ON_SYSTEM_START
 	bool "Start logging on system start"
 	depends on SYSVIEW_INITIALIZATION
 	default n
+
+endmenu #Advanced
+
+config SYSTEM_PROFILER_CUSTOM
+	depends on SYSTEM_PROFILER
+	bool"Enable custom system profiler"	
+	default n
+
+
+
 
 endmenu

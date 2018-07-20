@@ -27,6 +27,7 @@ static U64 get_time_cb(void)
 
 static void send_task_list_cb(void)
 {
+#ifdef CONFIG_SYSVIEW_LOG_KERNEL_EVENTS_THREAD
 	struct k_thread *thread;
 
 	for (thread = _kernel.threads; thread; thread = thread->next_thread) {
@@ -46,6 +47,7 @@ static void send_task_list_cb(void)
 			.Prio = thread->base.prio,
 		});
 	}
+#endif
 }
 
 /* Services provided to SYSVIEW by Zephyr */
