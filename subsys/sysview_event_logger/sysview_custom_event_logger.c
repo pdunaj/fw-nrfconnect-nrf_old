@@ -24,15 +24,6 @@ static void event_module_description(void) {
 	}
 }
 
-void log_event_exec(const struct event_header *eh)
-{
-        SEGGER_SYSVIEW_RecordU32(events.EventOffset, get_event_id(eh));
-}
-
-void log_event_end(const struct event_header *eh)
-{
-        SEGGER_SYSVIEW_RecordU32(events.EventOffset+1, get_event_id(eh));
-}
 
 void send_event_description(const struct event_type* et, uint16_t event_id)
 {

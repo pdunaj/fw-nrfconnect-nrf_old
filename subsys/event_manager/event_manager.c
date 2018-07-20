@@ -48,7 +48,7 @@ static void event_processor_fn(struct k_work *work)
 
 		const struct event_type *et = eh->type_id;
 		if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
-			log_event_exec(eh);
+			log_event_exec_start(eh);
 		}
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
@@ -87,7 +87,7 @@ static void event_processor_fn(struct k_work *work)
 			}
 		}
 		if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
-			log_event_end(eh);
+			log_event_exec_end(eh);
 		}		
 		k_free(eh);
 	}
