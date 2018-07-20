@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 2017 Intel Corporation
+ * Copyright (c) 2018 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: BSD-5-Clause-Nordic
  */
-
-
 
 #include <sysview_kernel_event_logger.h>
 

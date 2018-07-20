@@ -47,8 +47,8 @@ static void event_processor_fn(struct k_work *work)
 		ASSERT_EVENT_ID(eh->type_id);
 
 		const struct event_type *et = eh->type_id;
-		if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
-			log_event_exec_start(eh);
+		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
+			system_profiler_event_exec_start(eh);
 		}
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
@@ -86,8 +86,8 @@ static void event_processor_fn(struct k_work *work)
 				}
 			}
 		}
-		if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
-			log_event_exec_end(eh);
+		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
+			system_profiler_event_exec_end(eh);
 		}		
 		k_free(eh);
 	}
@@ -106,13 +106,10 @@ void _event_submit(struct event_header *eh)
 
 	irq_unlock(flags);
 	
-	if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
+	if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
 		const struct event_type *et = eh->type_id;
-		if (et->log_event){
-			et->log_event(eh, events.EventOffset + NUMBER_OF_PREDEFINED_EVENTS + et - __start_event_types);
-		}	
+		system_profiler_event_submit (eh, et - __start_event_types, et->log_event);			
 	}
-
 	k_work_submit(&event_processor);
 }
 
@@ -167,23 +164,7 @@ static void event_manager_show_subscribers(void)
 
 int event_manager_init(void)
 {
-	if (IS_ENABLED(CONFIG_SYSVIEW_INITIALIZATION)) {
-		SEGGER_SYSVIEW_Conf();
-		if (IS_ENABLED(CONFIG_SYSVIEW_START_LOGGING_ON_SYSTEM_START)) {		
-			SEGGER_SYSVIEW_Start();
-		}
-	}
-
-	if (IS_ENABLED(CONFIG_SYSVIEW_LOG_KERNEL_EVENTS)) {
-		kernel_event_logger_init();
-	}
-
-	if (IS_ENABLED(CONFIG_SYSVIEW_LOG_CUSTOM_EVENTS)) {
-		events.NumEvents = (__stop_event_types - __start_event_types);
-		SEGGER_SYSVIEW_RegisterModule(&events);
-	}
-
-
+	system_profiler_init(__stop_event_types - __start_event_types);
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
 		event_manager_show_subscribers();

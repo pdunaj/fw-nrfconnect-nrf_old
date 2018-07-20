@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2018 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: BSD-5-Clause-Nordic
+ */
+
+
 #ifndef _SYSVIEW_KERNEL_EVENT_LOGGER_H_
 #define _SYSVIEW_KERNEL_EVENT_LOGGER_H_
 

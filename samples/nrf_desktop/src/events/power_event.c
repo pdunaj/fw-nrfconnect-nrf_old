@@ -21,7 +21,7 @@ static void log_event(const struct event_header *eh, uint16_t event_type_id)
 	
 	struct log_event_buf b;
 	event_log_start(&b);
-	event_log_add_event_id(eh, &b);
+	event_log_add_event_mem_address(eh, &b);
 	event_log_send(event_type_id, &b);
 }
 

@@ -67,8 +67,6 @@
 
 #include <event_manager_priv.h>
 #include <system_profiler.h>
-#include <sysview_custom_event_logger.h>
-#include <sysview_kernel_event_logger.h>
 
 #ifdef __cplusplus
 extern "C" {

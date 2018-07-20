@@ -20,8 +20,6 @@ extern struct SEGGER_SYSVIEW_MODULE_STRUCT events;
 struct event_header;
 struct event_type;
 
-void log_event_exec_start(const struct event_header *eh);
-void log_event_exec_end(const struct event_header *eh);
 void send_event_description(const struct event_type* et, uint16_t event_id);
 void SEGGER_SYSVIEW_Conf(void);
 #endif

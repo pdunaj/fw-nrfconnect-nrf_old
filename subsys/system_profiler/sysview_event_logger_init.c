@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2018 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: BSD-5-Clause-Nordic
+ */
+
+
 #include <sysview_event_logger_init.h>
 
 #ifndef CONFIG_SMP
