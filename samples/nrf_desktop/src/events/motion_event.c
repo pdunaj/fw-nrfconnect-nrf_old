@@ -5,6 +5,8 @@
  */
 
 #include "motion_event.h"
+#define LOG_ARG_CNT 2
+
 
 static void print_event(const struct event_header *eh)
 {
@@ -20,6 +22,15 @@ static void log_args(const struct event_header* eh, struct log_event_buf *buf)
 	event_log_add_32(event->dy, buf);
 }
 
-static const char description[] = "motion_event event_id=%u dx=%d dy=%d";
+static const enum data_type log_args_types[LOG_ARG_CNT] = {s32, s32};
+static const char * log_args_labels[LOG_ARG_CNT] = {"dx", "dy"};
 
-EVENT_TYPE_DEFINE(motion_event, print_event, log_args, description);
+static struct event_log_info log_info = {
+	.log_args = log_args,
+	.log_args_cnt = LOG_ARG_CNT,
+	.log_args_labels = log_args_labels,
+	.log_args_types = log_args_types,
+};
+
+
+EVENT_TYPE_DEFINE(motion_event, print_event, log_args, &log_info);

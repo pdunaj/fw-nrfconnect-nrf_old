@@ -67,6 +67,7 @@
 
 #include <event_manager_priv.h>
 #include <system_profiler.h>
+#include <sysview_custom_event_logger.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,7 +107,6 @@ struct event_header {
 
 };
 
-
 /** @brief Event listener structure.
  *
  * @note All event listeners must be defined using @ref EVENT_LISTENER.
@@ -123,6 +123,23 @@ struct event_listener {
  */
 struct event_subscriber {
 	const struct event_listener *listener; /**< Pointer to the listener. */
+};
+
+
+/** @brief Event description for profiling or logging.
+ */
+struct event_log_info {
+	/** Function to log this event */
+	void (*log_args)(const struct event_header* eh, struct log_event_buf *buf);
+
+	/** Number of logged datafields */
+	const u8_t log_args_cnt;
+
+	/** Labels of logged datafields  */
+	const char **log_args_labels;
+	
+	/** Types of logged datafields */
+	const enum data_type* log_args_types;
 };
 
 
@@ -144,6 +161,9 @@ struct event_type {
 
 	/** Function to log this event */
 	void (*log_args)(const struct event_header* eh, struct log_event_buf *buf);
+
+	/** Structore with logging information and functions */
+	struct event_log_info* log_info;
 
 	/** Event description */
 	const char *description;
@@ -222,7 +242,7 @@ extern const struct event_type __stop_event_types[];
  * @param ename     Name of the event.
  * @param print_fn  Function to stringify event of this type.
  */
-#define EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc) _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc)
+#define EVENT_TYPE_DEFINE(ename, print_fn, log_fn, log_info_fn) _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, log_info_fn)
 
 
 /** @def ASSERT_EVENT_ID

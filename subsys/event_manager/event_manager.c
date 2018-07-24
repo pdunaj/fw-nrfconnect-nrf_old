@@ -7,7 +7,6 @@
 #include <zephyr.h>
 #include <misc/dlist.h>
 #include <misc/printk.h>
-
 #include <event_manager.h>
 
 static void event_processor_fn(struct k_work *work);
@@ -16,6 +15,7 @@ K_WORK_DEFINE(event_processor, event_processor_fn);
 
 static sys_dlist_t eventq = SYS_DLIST_STATIC_INIT(&eventq);
 
+static uint16_t profiler_event_ids[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS];
 
 static void event_processor_fn(struct k_work *work)
 {
@@ -48,7 +48,7 @@ static void event_processor_fn(struct k_work *work)
 
 		const struct event_type *et = eh->type_id;
 		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
-			system_profiler_event_exec_start(eh);
+			//profiler_event_exec_start(eh);
 		}
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
@@ -87,7 +87,7 @@ static void event_processor_fn(struct k_work *work)
 			}
 		}
 		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
-			system_profiler_event_exec_end(eh);
+			//profiler_event_exec_end(eh);
 		}		
 		k_free(eh);
 	}
@@ -111,9 +111,9 @@ void _event_submit(struct event_header *eh)
 		if(et->log_args) {		
 			struct log_event_buf buf;
 			event_log_start(&buf);
-			event_log_add_event_mem_address(eh, &buf);
+			event_log_add_mem_address(eh, &buf);
 			et->log_args(eh, &buf);
-			event_log_send(et - __start_event_types, &buf);
+			event_log_send(profiler_event_ids[et - __start_event_types], &buf);
 		}			
 	}
 	k_work_submit(&event_processor);
@@ -168,13 +168,36 @@ static void event_manager_show_subscribers(void)
 	printk("\n");
 }
 
+static void register_predefined_events()
+{
+
+}
+
+static void register_events()
+{
+	for (const struct event_type *et = __start_event_types;
+	     (et != NULL) && (et != __stop_event_types);
+	     et++) {
+		if (et->log_info)
+		{
+			u16_t profiler_event_id;
+			profiler_event_id = profiler_register_event_type(et->name, 
+				et->log_info->log_args_labels, et->log_info->log_args_types, 
+				et->log_info->log_args_cnt);
+			profiler_event_ids[et - __start_event_types] = profiler_event_id;
+		}
+ 	}
+	register_predefined_events();
+}
+
+
 int event_manager_init(void)
 {
-	system_profiler_init(__stop_event_types - __start_event_types);
+	profiler_init();
+	register_events();
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
 		event_manager_show_subscribers();
 	}
-
 	return 0;
 }

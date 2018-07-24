@@ -5,6 +5,7 @@
  */
 
 #include "power_event.h"
+#define LOG_ARG_CNT 0
 
 EVENT_TYPE_DEFINE(power_down_event, NULL, NULL, NULL);
 
@@ -19,6 +20,15 @@ static void log_args(const struct event_header* eh, struct log_event_buf *buf)
 {
 }
 
-static const char description[] = "keep_active_event event_id=%u";
+static const enum data_type log_args_types[LOG_ARG_CNT] = {};
+static const char * log_args_labels[LOG_ARG_CNT] = {};
 
-EVENT_TYPE_DEFINE(keep_active_event, print_event, log_args, description);
+static struct event_log_info log_info = {
+	.log_args = log_args,
+	.log_args_cnt = LOG_ARG_CNT,
+	.log_args_labels = log_args_labels,
+	.log_args_types = log_args_types,
+};
+
+
+EVENT_TYPE_DEFINE(keep_active_event, print_event, log_args, &log_info);

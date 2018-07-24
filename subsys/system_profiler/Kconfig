@@ -4,10 +4,20 @@ config SYSTEM_PROFILER
 	bool"Enable system profiler (please choose one)"
 	default n
 
-config CUSTOM_EVENT_BUF_LEN
+config PROFILER_LOG_MEM_ADDR
+	bool "Enable logging events' memory addresses"
+	depends on SYSTEM_PROFILER
+	default y
+
+config PROFILER_CUSTOM_EVENT_BUF_LEN
 	int "Length of data buffer for custom event data(in bytes)"
 	depends on SYSTEM_PROFILER
 	default 64
+
+config MAX_NUMBER_OF_CUSTOM_EVENTS
+	int "Maximum number of stored custom events"
+	depends on SYSTEM_PROFILER
+	default 32
 
 config SYSTEM_PROFILER_SYSVIEW
 	depends on SYSTEM_PROFILER	
@@ -57,7 +67,7 @@ config SYSVIEW_LOG_KERNEL_EVENTS_THREAD
 
 config SYSVIEW_LOG_CUSTOM_EVENTS
 	bool "Log custom events in SysView"
-	depends on SYSVIEW_INITIALIZATION
+	depends on SYSTEM_PROFILER_SYSVIEW
 	default n
 
 config SYSVIEW_START_LOGGING_ON_SYSTEM_START
