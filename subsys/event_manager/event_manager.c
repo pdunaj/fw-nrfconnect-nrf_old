@@ -15,7 +15,11 @@ K_WORK_DEFINE(event_processor, event_processor_fn);
 
 static sys_dlist_t eventq = SYS_DLIST_STATIC_INIT(&eventq);
 
+#ifdef CONFIG_PROFILER_CUSTOM_EVENTS
 static uint16_t profiler_event_ids[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS];
+#else
+static uint16_t profiler_event_ids[0];
+#endif
 
 static void event_processor_fn(struct k_work *work)
 {
@@ -47,11 +51,12 @@ static void event_processor_fn(struct k_work *work)
 		ASSERT_EVENT_ID(eh->type_id);
 
 		const struct event_type *et = eh->type_id;
-		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
+		if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
 			struct log_event_buf buf;
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
-			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +1], &buf); //id of event execution start
+			/* Event execution start in event manager has next id after all the events */
+			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +1], &buf); 
 		}
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
@@ -89,11 +94,12 @@ static void event_processor_fn(struct k_work *work)
 				}
 			}
 		}
-		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
+		if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
 			struct log_event_buf buf;
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
-			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +2], &buf); //id of event execution end
+			/* Event execution end in event manager has next id after all the events adn event execution start */
+			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +2], &buf);
 		}		
 		k_free(eh);
 	}
@@ -112,7 +118,7 @@ void _event_submit(struct event_header *eh)
 
 	irq_unlock(flags);
 	
-	if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
+	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
 		const struct event_type *et = eh->type_id;
 		if(et->log_args) {		
 			struct log_event_buf buf;
@@ -206,11 +212,18 @@ static void register_events()
 
 int event_manager_init(void)
 {
-	profiler_init();
-	register_events();
+	if (IS_ENABLED(CONFIG_PROFILER)) {
+		profiler_init();
+	}
+
+	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
+		register_events();
+	}
+
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
 		event_manager_show_subscribers();
 	}
 	return 0;
 }
+
