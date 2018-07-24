@@ -5,7 +5,7 @@
  */
 
 
-#include <sysview_event_logger_init.h>
+#include <sysview_profiler_init.h>
 
 #ifndef CONFIG_SMP
 extern k_tid_t const _idle_thread;

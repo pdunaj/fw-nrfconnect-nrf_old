@@ -6,7 +6,6 @@
 
 #include <system_profiler.h>
 
-
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][128];
 static char * arg_types_encodings[] = {"%u", "%d", "%D" };
 
@@ -28,9 +27,18 @@ static void event_module_description(void) {
 	}
 }
 
-void profiler_init()
+u32_t inline subtract_sram_base_from_mem_address(const void *event_mem_address)
 {
-	
+       #ifdef CONFIG_SRAM_BASE_ADDRESS
+                return (u32_t)(event_mem_address - CONFIG_SRAM_BASE_ADDRESS);
+        #else
+                return (u32_t)event_mem_address;
+        #endif
+}
+
+
+int profiler_init()
+{
 	if (IS_ENABLED(CONFIG_SYSVIEW_INITIALIZATION)) {
 		SEGGER_SYSVIEW_Conf();
 		if (IS_ENABLED(CONFIG_SYSVIEW_START_LOGGING_ON_SYSTEM_START)) {		
@@ -45,6 +53,7 @@ void profiler_init()
 */
 
 	SEGGER_SYSVIEW_RegisterModule(&events);
+	return 0;
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type *arg_types, const u8_t arg_cnt)
@@ -80,7 +89,7 @@ void event_log_add_32(u32_t data, struct log_event_buf* b)
 
 void event_log_add_mem_address(const void *event_mem_addres, struct log_event_buf* b)
 {
-	b->pPayload = SEGGER_SYSVIEW_EncodeU32(b->pPayload, get_mem_address(event_mem_addres));
+	b->pPayload = SEGGER_SYSVIEW_EncodeU32(b->pPayload, subtract_sram_base_from_mem_address(event_mem_addres));
 }
 
 void event_log_send(u16_t event_type_id, struct log_event_buf* b)
