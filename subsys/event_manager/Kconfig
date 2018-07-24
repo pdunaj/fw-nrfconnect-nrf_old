@@ -47,6 +47,15 @@ config DESKTOP_SYS_LOG_EVENT_MANAGER_LEVEL
 	  - 3 INFO, write SYS_LOG_INF in addition to previous levels
 	  - 4 DEBUG, write SYS_LOG_DBG in addition to previous levels
 
+config DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+	bool "Enable logging event manager events to profiler"
+	depends on PROFILER
+
+config DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
+	bool "Tracing of events execution"
+	depends on DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+	default y
+
 endif # EVENT_MANAGER
 
 endmenu

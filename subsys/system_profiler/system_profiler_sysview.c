@@ -6,9 +6,7 @@
 
 #include <system_profiler.h>
 
-#ifndef CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS 
-#define CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS 128
-#endif
+
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][128];
 static char * arg_types_encodings[] = {"%u", "%d", "%D" };
 
@@ -46,9 +44,7 @@ void profiler_init()
 	}
 */
 
-	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
-		SEGGER_SYSVIEW_RegisterModule(&events);
-	}
+	SEGGER_SYSVIEW_RegisterModule(&events);
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type *arg_types, const u8_t arg_cnt)

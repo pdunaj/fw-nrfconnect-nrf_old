@@ -4,24 +4,12 @@ config PROFILER
 	bool"Enable system profiler"
 	default n
 
-config PROFILER_CUSTOM_EVENTS
-	bool "Enable logging custom events"
-	depends on PROFILER	
-	default n
-
-config PROFILER_CUSTOM_EVENTS_LOG_MEM_ADDR
-	bool "Enable logging events' memory addresses"
-	depends on PROFILER_CUSTOM_EVENTS
-	default y
-
 config PROFILER_CUSTOM_EVENT_BUF_LEN
 	int "Length of data buffer for custom event data(in bytes)"
-	depends on PROFILER_CUSTOM_EVENTS
 	default 64
 
 config MAX_NUMBER_OF_CUSTOM_EVENTS
 	int "Maximum number of stored custom events"
-	depends on PROFILER_CUSTOM_EVENTS
 	default 32
 
 config PROFILER_KERNEL_EVENTS
@@ -56,6 +44,8 @@ config PROFILER_KERNEL_EVENTS_CONTEXT_SWITCH
 config PROFILER_SYSVIEW
 	bool "Use SysView profiler"
 	depends on PROFILER
+	select RTT_CONSOLE
+	select SEGGER_SYSTEMVIEW
 	default y
 
 menu "SysView advanced"
@@ -63,8 +53,6 @@ menu "SysView advanced"
 config SYSVIEW_INITIALIZATION
 	bool "Initialize and config SystemView on start"
 	default n
-	select RTT_CONSOLE
-	select SEGGER_SYSTEMVIEW
 
 config SYSVIEW_LOG_KERNEL_EVENTS	
 	bool "Log kernel events in SysView"

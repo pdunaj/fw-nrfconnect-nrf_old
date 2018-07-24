@@ -16,9 +16,6 @@ enum data_type {
 	timestamp
 };
 
-#ifndef CONFIG_PROFILER_CUSTOM_EVENT_BUF_LEN
-#define CONFIG_PROFILER_CUSTOM_EVENT_BUF_LEN 1
-#endif
 struct log_event_buf
 {
 	u8_t* pPayload;
@@ -28,8 +25,6 @@ struct log_event_buf
 #include <stdio.h>
 #include <systemview/SEGGER_SYSVIEW.h>
 #include <rtt/SEGGER_RTT.h>
-
-
 
 u32_t inline get_mem_address(const void *event_mem_address)
 {
@@ -41,7 +36,6 @@ u32_t inline get_mem_address(const void *event_mem_address)
 }
 
 #ifdef CONFIG_PROFILER
-
 void profiler_init();
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type* arg_types, const u8_t arg_cnt);
@@ -52,14 +46,11 @@ void event_log_add_mem_address(const void *mem_address, struct log_event_buf* b)
 void event_log_send(u16_t event_type_id, struct log_event_buf* b);
 
 #else
-
-#define profiler_init() 
-#define profiler_register_event_type(name, args, arg_types, arg_cnt)
 #define event_log_start(b)
 #define event_log_add_32(data, b)
 #define event_log_add_mem_address(mem_address, b)
 #define event_log_send(event_type_id, b)
 
-#endif /* CONFIG_PROFILER */
 
+#endif
 #endif /* _SYSTEM_PROFILER_H_ */

@@ -15,10 +15,8 @@ K_WORK_DEFINE(event_processor, event_processor_fn);
 
 static sys_dlist_t eventq = SYS_DLIST_STATIC_INIT(&eventq);
 
-#ifdef CONFIG_PROFILER_CUSTOM_EVENTS
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
 static uint16_t profiler_event_ids[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS];
-#else
-static uint16_t profiler_event_ids[0];
 #endif
 
 static void event_processor_fn(struct k_work *work)
@@ -28,7 +26,7 @@ static void event_processor_fn(struct k_work *work)
 	/* Make current event list local */
 	unsigned int flags = irq_lock();
 
-	if (sys_dlist_is_empty(&eventq)) {
+if (sys_dlist_is_empty(&eventq)) {
 		irq_unlock(flags);
 		return;
 	}
@@ -51,13 +49,16 @@ static void event_processor_fn(struct k_work *work)
 		ASSERT_EVENT_ID(eh->type_id);
 
 		const struct event_type *et = eh->type_id;
-		if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
+
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
+		{
 			struct log_event_buf buf;
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
 			/* Event execution start in event manager has next id after all the events */
 			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +1], &buf); 
 		}
+#endif
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
 			if (et->print_event) {
@@ -94,13 +95,15 @@ static void event_processor_fn(struct k_work *work)
 				}
 			}
 		}
-		if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
+#ifdef DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
+		{
 			struct log_event_buf buf;
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
 			/* Event execution end in event manager has next id after all the events adn event execution start */
 			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +2], &buf);
-		}		
+		}
+#endif		
 		k_free(eh);
 	}
 
@@ -117,8 +120,8 @@ void _event_submit(struct event_header *eh)
 	sys_dlist_append(&eventq, &eh->node);
 
 	irq_unlock(flags);
-	
-	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
+
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED	
 		const struct event_type *et = eh->type_id;
 		if(et->log_args) {		
 			struct log_event_buf buf;
@@ -127,7 +130,7 @@ void _event_submit(struct event_header *eh)
 			et->log_args(eh, &buf);
 			event_log_send(profiler_event_ids[et - __start_event_types], &buf);
 		}			
-	}
+#endif
 	k_work_submit(&event_processor);
 }
 
@@ -180,6 +183,8 @@ static void event_manager_show_subscribers(void)
 	printk("\n");
 }
 
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+#if CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
 static void register_predefined_events()
 {
 	u16_t profiler_event_id;
@@ -191,6 +196,7 @@ static void register_predefined_events()
 	profiler_event_id = profiler_register_event_type("event_processing_end", NULL, NULL, 0);
 	profiler_event_ids[__stop_event_types - __start_event_types + 2] = profiler_event_id;
 }
+#endif
 
 static void register_events()
 {
@@ -206,19 +212,18 @@ static void register_events()
 			profiler_event_ids[et - __start_event_types] = profiler_event_id;
 		}
  	}
+#if CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
 	register_predefined_events();
+#endif
 }
-
+#endif
 
 int event_manager_init(void)
 {
-	if (IS_ENABLED(CONFIG_PROFILER)) {
-		profiler_init();
-	}
-
-	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS)) {
-		register_events();
-	}
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+	profiler_init();
+	register_events();
+#endif
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
