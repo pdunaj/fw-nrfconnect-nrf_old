@@ -48,7 +48,10 @@ static void event_processor_fn(struct k_work *work)
 
 		const struct event_type *et = eh->type_id;
 		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
-			//profiler_event_exec_start(eh);
+			struct log_event_buf buf;
+			event_log_start(&buf);
+			event_log_add_mem_address(eh, &buf);
+			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +1], &buf); //id of event execution start
 		}
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_EVENTS)) {
 			printk("e: %s ", et->name);
@@ -87,7 +90,10 @@ static void event_processor_fn(struct k_work *work)
 			}
 		}
 		if (IS_ENABLED(CONFIG_SYSTEM_PROFILER)) {
-			//profiler_event_exec_end(eh);
+			struct log_event_buf buf;
+			event_log_start(&buf);
+			event_log_add_mem_address(eh, &buf);
+			event_log_send(profiler_event_ids[__stop_event_types - __start_event_types +2], &buf); //id of event execution end
 		}		
 		k_free(eh);
 	}
@@ -170,7 +176,14 @@ static void event_manager_show_subscribers(void)
 
 static void register_predefined_events()
 {
-
+	u16_t profiler_event_id;
+	//event execution start event after last event
+	profiler_event_id = profiler_register_event_type("event_processing_start", NULL, NULL, 0);
+	profiler_event_ids[__stop_event_types - __start_event_types + 1] = profiler_event_id;
+	
+	//event execution stop event 
+	profiler_event_id = profiler_register_event_type("event_processing_end", NULL, NULL, 0);
+	profiler_event_ids[__stop_event_types - __start_event_types + 2] = profiler_event_id;
 }
 
 static void register_events()
