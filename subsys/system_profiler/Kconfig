@@ -12,35 +12,6 @@ config MAX_NUMBER_OF_CUSTOM_EVENTS
 	int "Maximum number of stored custom events"
 	default 32
 
-config PROFILER_KERNEL_EVENTS
-	bool "Enable logging kernel events"
-	depends on PROFILER
-	default n
-
-config PROFILER_KERNEL_EVENTS_THREAD
-	bool "Enable logging thread events"
-	depends on PROFILER_KERNEL_EVENTS
-	select KERNEL_EVENT_LOGGER_THREAD if PROFILER_SYSVIEW
-	default n
-
-config PROFILER_KERNEL_EVENTS_INTERRUPT
-	bool "Enable logging interrupt events"
-	depends on PROFILER_KERNEL_EVENTS
-	select KERNEL_EVENT_LOGGER_INTERRUPT if PROFILER_SYSVIEW
-	default n
-
-config PROFILER_KERNEL_EVENTS_SLEEP
-	bool "Enable logging sleep events"
-	depends on PROFILER_KERNEL_EVENTS
-	select KERNEL_EVENT_LOGGER_SLEEP if PROFILER_SYSVIEW
-	default n
-
-config PROFILER_KERNEL_EVENTS_CONTEXT_SWITCH
-	bool "Log context switch events"
-	depends on PROFILER_KERNEL_EVENTS
-	select KERNEL_EVENT_LOGGER_CONTEXT_SWITCH if PROFILER_SYSVIEW
-	default y
-
 config PROFILER_SYSVIEW
 	bool "Use SysView profiler"
 	depends on PROFILER
@@ -52,14 +23,6 @@ menu "SysView advanced"
 	depends on PROFILER_SYSVIEW
 config SYSVIEW_INITIALIZATION
 	bool "Initialize and config SystemView on start"
-	default n
-
-config SYSVIEW_LOG_KERNEL_EVENTS	
-	bool "Log kernel events in SysView"
-	select KERNEL_EVENT_LOGGER
-	select TASK_MONITOR
-	select THREAD_MONITOR
-	select RING_BUFFER
 	default n
 
 config KERNEL_EVENT_LOGGER_BUFFER_SIZE
