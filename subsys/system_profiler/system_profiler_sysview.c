@@ -21,8 +21,7 @@ struct SEGGER_SYSVIEW_MODULE_STRUCT events = {
 
 static void event_module_description(void) {
 	u8_t i;	
-	for (i = 0; i < events.NumEvents; i++)
-	{
+	for (i = 0; i < events.NumEvents; i++) {
 		SEGGER_SYSVIEW_RecordModuleDescription(&events, descr[i]);
 	}
 }
@@ -63,7 +62,6 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	pos += sprintf(descr[event_number], "%d %s", event_number, name);
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-	{
 		pos += sprintf(descr[event_number] + pos, " %s=%s", "mem_address", "%u");
 	}	
 

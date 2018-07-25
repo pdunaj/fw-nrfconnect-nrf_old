@@ -25,11 +25,6 @@ config SYSVIEW_INITIALIZATION
 	bool "Initialize and config SystemView on start"
 	default n
 
-config KERNEL_EVENT_LOGGER_BUFFER_SIZE
-	int "Size of kernel event buffer"
-	default 16
-
-
 config SYSVIEW_START_LOGGING_ON_SYSTEM_START
 	bool "Start logging on system start"
 	depends on SYSVIEW_INITIALIZATION
