@@ -120,7 +120,9 @@ void _event_submit(struct event_header *eh)
 		if(et->log_args) {		
 			struct log_event_buf buf;
 			event_log_start(&buf);
-			event_log_add_mem_address(eh, &buf);
+			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
+				event_log_add_mem_address(eh, &buf);
+			}
 			et->log_args(eh, &buf);
 			event_log_send(profiler_event_ids[et - __start_event_types], &buf);
 		}			

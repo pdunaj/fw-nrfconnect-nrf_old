@@ -62,7 +62,7 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	u8_t pos = 0;
 	pos += sprintf(descr[event_number], "%d %s", event_number, name);
 
-	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS_LOG_MEM_ADDR))
+	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 	{
 		pos += sprintf(descr[event_number] + pos, " %s=%s", "mem_address", "%u");
 	}	
