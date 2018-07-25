@@ -37,9 +37,10 @@ config SYSVIEW_START_LOGGING_ON_SYSTEM_START
 
 endmenu #Advanced
 
-config PROFILER_CUSTOM
-	bool "Use custom profiler"
+config PROFILER_NORDIC
+	bool "Use Nordic profiler"
 	depends on PROFILER
+	select RTT_CONSOLE
 	default n
 
 endmenu
