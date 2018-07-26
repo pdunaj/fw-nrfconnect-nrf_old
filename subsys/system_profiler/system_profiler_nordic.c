@@ -9,13 +9,14 @@
 #include <zephyr.h>
 #include <rtt/SEGGER_RTT.h>
 #include <system_profiler.h>
-#define RTT_CHANNEL_DATA 1
-#define RTT_CHANNEL_INFO 2
+
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][128];
 static char * arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s" "t" };
 
-u8_t *buffer[128];
+static u8_t buffer_data[CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE];
+static u8_t buffer_info[CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE];
+static u8_t buffer_commands[CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE];
 
 /* First 10 IDs are for predefined events */
 static u8_t num_events = 1; 
@@ -31,10 +32,10 @@ static void send_system_description()
 	u8_t t;
 	for (t = 1; t < num_events; t++)
 	{
-		SEGGER_RTT_WriteString(RTT_CHANNEL_INFO, descr[t]);
-		SEGGER_RTT_PutChar(RTT_CHANNEL_INFO, '\n');
+		SEGGER_RTT_WriteString(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, descr[t]);
+		SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
 	}
-	SEGGER_RTT_PutChar(RTT_CHANNEL_INFO, '\n');
+	SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
 }
 
 static void profiler_nordic_thread()
@@ -45,8 +46,10 @@ static void profiler_nordic_thread()
 
 int profiler_init()
 {
-	SEGGER_RTT_ConfigUpBuffer(1, "Nordic profiler data", buffer, 512, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	SEGGER_RTT_ConfigUpBuffer(2, "Nordic profiler info", buffer, 512, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);	
+	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, "Nordic profiler data", buffer_data, CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, "Nordic profiler info", buffer_info, CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+	SEGGER_RTT_ConfigDownBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, "Nordic profiler command", buffer_commands, CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+
 	k_thread_create(&profiler_nordic_stack_data, profiler_nordic_stack,
 			K_THREAD_STACK_SIZEOF(profiler_nordic_stack),
 			(k_thread_entry_t) profiler_nordic_thread,
@@ -124,7 +127,7 @@ void event_log_send(u16_t event_type_id, struct log_event_buf* buf)
 	if (sending_events)
 	{
 		u8_t type_id = event_type_id & 255;
-		SEGGER_RTT_Write(RTT_CHANNEL_DATA, &type_id, 1);
-		SEGGER_RTT_Write(RTT_CHANNEL_DATA, buf->pPayloadStart, buf->pPayload - buf->pPayloadStart);
+		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, &type_id, 1);
+		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, buf->pPayloadStart, buf->pPayload - buf->pPayloadStart);
 	}
 }
