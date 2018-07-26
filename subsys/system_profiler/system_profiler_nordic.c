@@ -11,17 +11,22 @@
 #include <system_profiler.h>
 
 
-static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][128];
+enum profiler_nordic_commands
+{
+	start = 1,
+	stop = 2,
+	info = 3
+};
+
+static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
 static char * arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s" "t" };
 
 static u8_t buffer_data[CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE];
 static u8_t buffer_info[CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE];
 static u8_t buffer_commands[CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE];
 
-/* First 10 IDs are for predefined events */
 static u8_t num_events = 1; 
-
-bool sending_events = true;
+bool sending_events = false;
 
 K_THREAD_STACK_DEFINE(profiler_nordic_stack, 1024);
 
@@ -40,8 +45,24 @@ static void send_system_description()
 
 static void profiler_nordic_thread()
 {
-	k_sleep(5000);
-	send_system_description();
+	enum profiler_nordic_commands command;
+	while (1) {
+		if (SEGGER_RTT_Read(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, &command, 1)) {
+			switch (command) {
+			case start:
+				sending_events = true;
+				break;			
+			case stop:
+				sending_events = false;
+				break;
+			case info:
+				send_system_description();
+				break;			
+			}
+
+		}
+	k_sleep(100);
+	}
 }
 
 int profiler_init()

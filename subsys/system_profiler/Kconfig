@@ -12,6 +12,10 @@ config MAX_NUMBER_OF_CUSTOM_EVENTS
 	int "Maximum number of stored custom events"
 	default 32
 
+config MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS
+	int "Maximum number of characters used to describe single event type"	
+	default 128
+
 config PROFILER_SYSVIEW
 	bool "Use SysView profiler"
 	depends on PROFILER

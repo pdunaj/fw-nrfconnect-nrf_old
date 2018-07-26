@@ -6,7 +6,7 @@
 
 #include <system_profiler.h>
 
-static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][128];
+static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
 static char * arg_types_encodings[] = {"%u", "%d", "%u", "%d", "%u", "%d", "%s" "%D" };
 
 
