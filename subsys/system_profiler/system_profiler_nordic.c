@@ -19,7 +19,7 @@ enum profiler_nordic_commands
 };
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
-static char * arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s" "t" };
+static char * arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s", "t" };
 
 static u8_t buffer_data[CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE];
 static u8_t buffer_info[CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE];
