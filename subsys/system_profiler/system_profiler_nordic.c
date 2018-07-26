@@ -60,7 +60,7 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	u8_t pos = 0;
 	pos += sprintf(descr[num_events], "%s,%d", name, num_events);
 
-	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS_LOG_MEM_ADDR))
+	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION))
 	{
 		pos += sprintf(descr[num_events] + pos, ",%s", "u32");
 	}	
@@ -71,7 +71,7 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 		pos += sprintf(descr[num_events] + pos, ",%s", arg_types_encodings[arg_types[t]]);
 	}
 
-	if (IS_ENABLED(CONFIG_PROFILER_CUSTOM_EVENTS_LOG_MEM_ADDR))
+	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION))
 	{
 		pos += sprintf(descr[num_events] + pos, ",%s", "mem_address");
 	}
