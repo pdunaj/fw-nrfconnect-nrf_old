@@ -212,17 +212,20 @@ int event_manager_init(void)
 {
 	profiler_event_ids = k_malloc((__stop_event_types - __start_event_types + 2) * sizeof(u16_t));
 	if (!profiler_event_ids) {
-		printk("event_manager: memory allocation failed \n");
+		printk("Event manager: memory allocation failed \n");
 		return -1;
 	}
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
-		profiler_init();
+		if (profiler_init()) {
+			printk("System profiler: initialization problem \n");
+			return -1;
+		}
 		register_events();
-	}
+	}		
+
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_SHOW_LISTENERS)) {
 		event_manager_show_listeners();
 		event_manager_show_subscribers();
 	}
 	return 0;
 }
-

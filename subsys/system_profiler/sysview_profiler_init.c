@@ -82,9 +82,6 @@ void SEGGER_SYSVIEW_Conf(void)
 #elif defined(CONFIG_SRAM_BASE_ADDRESS) /* arm, default */
 	SEGGER_SYSVIEW_SetRAMBase(CONFIG_SRAM_BASE_ADDRESS);
 #else
-	/* Setting RAMBase is just an optimization: this value is subtracted
-	 * from all pointers in order to save bandwidth.  It's not an error
-	 * if a platform does not set this value.
-	 */
+
 #endif
 }
