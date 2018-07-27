@@ -50,6 +50,7 @@ if (sys_dlist_is_empty(&eventq)) {
 
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 			struct log_event_buf buf;
+			ARG_UNUSED(buf);
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
 			/* Event execution start in event manager has next id after all the events */
@@ -93,6 +94,7 @@ if (sys_dlist_is_empty(&eventq)) {
 		}
 		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 			struct log_event_buf buf;
+			ARG_UNUSED(buf);
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
 			/* Event execution end in event manager has next id after all the events adn event execution start */
@@ -119,6 +121,7 @@ void _event_submit(struct event_header *eh)
 		const struct event_type *et = eh->type_id;
 		if(et->log_args) {		
 			struct log_event_buf buf;
+			ARG_UNUSED(buf);
 			event_log_start(&buf);
 			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 				event_log_add_mem_address(eh, &buf);

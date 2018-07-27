@@ -12,7 +12,7 @@ EVENT_TYPE_DEFINE(power_down_event, NULL, NULL, NULL);
 static void print_event(const struct event_header *eh)
 {
 	struct keep_active_event *event = cast_keep_active_event(eh);
-
+	ARG_UNUSED(event);
 	printk("requested by %s", event->module_name);
 }
 

@@ -18,6 +18,7 @@ static void print_event(const struct event_header *eh)
 static void log_args(const struct event_header* eh, struct log_event_buf *buf)
 {
 	struct motion_event *event = cast_motion_event(eh);
+	ARG_UNUSED(event);
 	event_log_add_32(event->dx, buf);
 	event_log_add_32(event->dy, buf);
 }

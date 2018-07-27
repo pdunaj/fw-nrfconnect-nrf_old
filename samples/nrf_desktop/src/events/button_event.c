@@ -19,6 +19,7 @@ static void print_event(const struct event_header *eh)
 static void log_args(const struct event_header *eh, struct log_event_buf *buf)
 {
 	struct button_event *event = cast_button_event(eh);
+	ARG_UNUSED(event);
 	event_log_add_32(event->key_id, buf);
 	event_log_add_32((event->pressed)?(1):(0), buf);
 }
