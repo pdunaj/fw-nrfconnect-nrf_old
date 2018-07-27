@@ -91,7 +91,7 @@ if (sys_dlist_is_empty(&eventq)) {
 				}
 			}
 		}
-		if (IS_ENABLED(DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
+		if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 			struct log_event_buf buf;
 			event_log_start(&buf);
 			event_log_add_mem_address(eh, &buf);
