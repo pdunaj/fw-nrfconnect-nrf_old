@@ -14,6 +14,7 @@
 #include <gpio.h>
 
 #include <misc/printk.h>
+#include <system_profiler.h>
 
 #include "power_event.h"
 #include "module_state_event.h"
@@ -145,6 +146,7 @@ static void power_down(struct k_work *work)
 		if (event) {
 			SYS_LOG_INF("system switching off");
 			power_state = POWER_STATE_SUSPENDING1;
+			profiler_sleep();
 			EVENT_SUBMIT(event);
 		}
 	}

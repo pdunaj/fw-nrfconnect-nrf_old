@@ -55,6 +55,11 @@ int profiler_init()
 	return 0;
 }
 
+void profiler_sleep()
+{
+
+}
+
 u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type *arg_types, const u8_t arg_cnt)
 {
 	u8_t event_number = events.NumEvents;
