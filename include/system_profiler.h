@@ -96,12 +96,12 @@ void event_log_send(u16_t event_type_id, struct log_event_buf* buf);
 
 #else
 #define profiler_init() 0
+#define profiler_sleep()
 #define profiler_register_event_type(name, args, arg_types, arg_cnt) 0;
 #define event_log_start(b)
 #define event_log_add_32(data, b)
 #define event_log_add_mem_address(mem_address, b)
 #define event_log_send(event_type_id, b)
-
 
 #endif
 #endif /* _SYSTEM_PROFILER_H_ */
