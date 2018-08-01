@@ -29,7 +29,8 @@ static k_tid_t protocol_thread_id;
 
 static u8_t num_events = 1;
 
-bool sending_events = false;
+volatile bool protocol_running = false;
+volatile bool sending_events = false;
 
 K_THREAD_STACK_DEFINE(profiler_nordic_stack, 1024);
 
@@ -64,12 +65,16 @@ static void profiler_nordic_thread()
 			}
 
 		}
-		k_sleep(100);
+		if (!protocol_running) {
+			return;
+		}
+		k_sleep(500);
 	}
 }
 
 int profiler_init()
 {
+	protocol_running = true;
 	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, "Nordic profiler data", buffer_data, CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
 	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, "Nordic profiler info", buffer_info, CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
 	SEGGER_RTT_ConfigDownBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, "Nordic profiler command", buffer_commands, CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
@@ -77,14 +82,15 @@ int profiler_init()
 	protocol_thread_id =  k_thread_create(&profiler_nordic_stack_data, profiler_nordic_stack,
 			K_THREAD_STACK_SIZEOF(profiler_nordic_stack),
 			(k_thread_entry_t) profiler_nordic_thread,
-			NULL, NULL, NULL, K_PRIO_PREEMPT(10), 0, 0);
+			NULL, NULL, NULL, K_PRIO_COOP(1), 0, 0);
 	return 0;
 }
 
 void profiler_sleep()
 {
 	sending_events = false;
-	k_thread_abort(protocol_thread_id);
+	protocol_running = false;
+	k_wakeup(protocol_thread_id);
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type* arg_types, const u8_t arg_cnt)

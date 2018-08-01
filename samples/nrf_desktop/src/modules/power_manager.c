@@ -141,12 +141,12 @@ int _sys_soc_suspend(s32_t ticks)
 static void power_down(struct k_work *work)
 {
 	if (power_state == POWER_STATE_IDLE) {
+		profiler_sleep();
 		struct power_down_event *event = new_power_down_event();
 
 		if (event) {
 			SYS_LOG_INF("system switching off");
 			power_state = POWER_STATE_SUSPENDING1;
-			profiler_sleep();
 			EVENT_SUBMIT(event);
 		}
 	}
