@@ -19,7 +19,8 @@ struct SEGGER_SYSVIEW_MODULE_STRUCT events = {
                 .pNext = NULL
         };
 
-static void event_module_description(void) {
+static void event_module_description(void) 
+{
 	u8_t i;	
 	for (i = 0; i < events.NumEvents; i++) {
 		SEGGER_SYSVIEW_RecordModuleDescription(&events, descr[i]);
@@ -71,8 +72,7 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	}	
 
 	u8_t t;
-	for(t = 0; t < arg_cnt; t++)
-	{
+	for(t = 0; t < arg_cnt; t++) {
 		pos += sprintf(descr[event_number] + pos, " %s=%s", args[t], arg_types_encodings[arg_types[t]]);
 	}
 	events.NumEvents ++;

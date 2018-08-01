@@ -30,7 +30,7 @@ static k_tid_t protocol_thread_id;
 static u8_t num_events = 1;
 
 volatile bool protocol_running = false;
-volatile bool sending_events = false;
+volatile bool sending_events = CONFIG_PROFILER_NORDIC_START_LOGGING_ON_SYSTEM_START;
 
 K_THREAD_STACK_DEFINE(profiler_nordic_stack, 1024);
 
@@ -39,8 +39,7 @@ static struct k_thread profiler_nordic_stack_data;
 static void send_system_description()
 {
 	u8_t t;
-	for (t = 1; t < num_events; t++)
-	{
+	for (t = 1; t < num_events; t++) {
 		SEGGER_RTT_WriteString(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, descr[t]);
 		SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
 	}
@@ -98,24 +97,20 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	u8_t pos = 0;
 	pos += sprintf(descr[num_events], "%s,%d", name, num_events);
 
-	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION))
-	{
+	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 		pos += sprintf(descr[num_events] + pos, ",%s", "u32");
 	}	
 
 	u8_t t;
-	for(t = 0; t < arg_cnt; t++)
-	{
+	for(t = 0; t < arg_cnt; t++) {
 		pos += sprintf(descr[num_events] + pos, ",%s", arg_types_encodings[arg_types[t]]);
 	}
 
-	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION))
-	{
+	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 		pos += sprintf(descr[num_events] + pos, ",%s", "mem_address");
 	}
 	
-	for(t = 0; t < arg_cnt; t++)
-	{
+	for(t = 0; t < arg_cnt; t++) {
 		pos += sprintf(descr[num_events] + pos, ",%s", args[t]);
 	}
 	descr[num_events][pos] = '\0';
@@ -159,8 +154,7 @@ void event_log_add_mem_address(const void *mem_address, struct log_event_buf* bu
 
 void event_log_send(u16_t event_type_id, struct log_event_buf* buf)
 {
-	if (sending_events)
-	{
+	if (sending_events) {
 		u8_t type_id = event_type_id & 255;
 		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, &type_id, 1);
 		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, buf->pPayloadStart, buf->pPayload - buf->pPayloadStart);
