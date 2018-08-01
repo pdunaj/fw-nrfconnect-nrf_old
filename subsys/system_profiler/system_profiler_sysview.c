@@ -37,7 +37,7 @@ u32_t inline subtract_sram_base_from_mem_address(const void *event_mem_address)
 }
 
 
-int profiler_init()
+int profiler_init(void)
 {
 	if (IS_ENABLED(CONFIG_SYSVIEW_INITIALIZATION)) {
 		SEGGER_SYSVIEW_Conf();
@@ -56,7 +56,7 @@ int profiler_init()
 	return 0;
 }
 
-void profiler_sleep()
+void profiler_sleep(void)
 {
 
 }

@@ -36,7 +36,7 @@ K_THREAD_STACK_DEFINE(profiler_nordic_stack, 1024);
 
 static struct k_thread profiler_nordic_stack_data;
 
-static void send_system_description()
+static void send_system_description(void)
 {
 	u8_t t;
 	for (t = 1; t < num_events; t++) {
@@ -46,7 +46,7 @@ static void send_system_description()
 	SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
 }
 
-static void profiler_nordic_thread()
+static void profiler_nordic_thread(void)
 {
 	enum profiler_nordic_commands command;
 	while (1) {
@@ -71,7 +71,7 @@ static void profiler_nordic_thread()
 	}
 }
 
-int profiler_init()
+int profiler_init(void)
 {
 	protocol_running = true;
 	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, "Nordic profiler data", buffer_data, CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
@@ -85,7 +85,7 @@ int profiler_init()
 	return 0;
 }
 
-void profiler_sleep()
+void profiler_sleep(void)
 {
 	sending_events = false;
 	protocol_running = false;

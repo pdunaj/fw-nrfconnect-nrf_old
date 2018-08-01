@@ -42,12 +42,12 @@ struct log_event_buf
  *
  * @return Zero if successful
  */
-int profiler_init();
+int profiler_init(void);
 
 /** @brief Funciton to put profiler to sleep.
  *
  */
-void profiler_sleep();
+void profiler_sleep(void);
 
 /** @brief Funciton to register type of event in system profiler.
  * 
