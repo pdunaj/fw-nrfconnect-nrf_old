@@ -49,7 +49,7 @@ static void send_system_description(void)
 static void profiler_nordic_thread(void)
 {
 	enum profiler_nordic_commands command;
-	while (1) {
+	while (protocol_running) {
 		if (SEGGER_RTT_Read(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, &command, 1)) {
 			switch (command) {
 			case start:
@@ -63,9 +63,6 @@ static void profiler_nordic_thread(void)
 				break;			
 			}
 
-		}
-		if (!protocol_running) {
-			return;
 		}
 		k_sleep(500);
 	}
