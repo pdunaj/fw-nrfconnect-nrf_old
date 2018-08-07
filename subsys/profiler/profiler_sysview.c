@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-5-Clause-Nordic
  */
 
-#include <system_profiler.h>
+#include <profiler.h>
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
 static char * arg_types_encodings[] = {"%u", "%d", "%u", "%d", "%u", "%d", "%s" "%D" };
@@ -54,7 +54,7 @@ void profiler_sleep(void)
 
 }
 
-u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, const u8_t arg_cnt)
+u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
 	u8_t event_number = events.NumEvents;
 	u8_t pos = 0;
@@ -64,9 +64,8 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 		pos += sprintf(descr[event_number] + pos, " %s=%s", "mem_address", "%u");
 	}	
 
-	u8_t t;
-	for(t = 0; t < arg_cnt; t++) {
-		pos += sprintf(descr[event_number] + pos, " %s=%s", args[t], arg_types_encodings[arg_types[t]]);
+	for(size_t i = 0; i < arg_cnt; i++) {
+		pos += sprintf(descr[event_number] + pos, " %s=%s", args[i], arg_types_encodings[arg_types[i]]);
 	}
 	events.NumEvents ++;
 	return events.EventOffset + event_number;

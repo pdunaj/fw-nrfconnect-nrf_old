@@ -57,7 +57,7 @@ void profiler_sleep(void);
  * 
  * @return ID given to event type in system profiler.
  */
-u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, const u8_t arg_cnt);
+u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt);
 
 /* @brief Function to initialize buffer for events' data.
  * 

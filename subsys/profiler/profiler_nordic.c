@@ -6,20 +6,21 @@
 #include <kernel_structs.h>
 #include <misc/printk.h>
 #include <misc/util.h>
+#include <misc/byteorder.h>
 #include <zephyr.h>
 #include <rtt/SEGGER_RTT.h>
-#include <system_profiler.h>
+#include <profiler.h>
 
 
-enum profiler_nordic_commands
+enum nordic_command
 {
-	start = 1,
-	stop = 2,
-	info = 3
+	NORDIC_COMMAND_START = 1,
+	NORDIC_COMMAND_STOP = 2,
+	NORDIC_COMMAND_INFO = 3
 };
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
-static char * arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s", "t" };
+static char *arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s", "t" };
 
 static u8_t buffer_data[CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE];
 static u8_t buffer_info[CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE];
@@ -27,7 +28,7 @@ static u8_t buffer_commands[CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE];
 
 static k_tid_t protocol_thread_id;
 
-static u8_t num_events = 1;
+static u8_t num_events = 0;
 
 volatile bool protocol_running = false;
 volatile bool sending_events = CONFIG_PROFILER_NORDIC_START_LOGGING_ON_SYSTEM_START;
@@ -38,8 +39,7 @@ static struct k_thread profiler_nordic_stack_data;
 
 static void send_system_description(void)
 {
-	u8_t t;
-	for (t = 1; t < num_events; t++) {
+	for (size_t t = 0; t < num_events; t++) {
 		SEGGER_RTT_WriteString(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, descr[t]);
 		SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
 	}
@@ -48,17 +48,17 @@ static void send_system_description(void)
 
 static void profiler_nordic_thread(void)
 {
-	enum profiler_nordic_commands command;
+	enum nordic_command command;
 	while (protocol_running) {
 		if (SEGGER_RTT_Read(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, &command, 1)) {
 			switch (command) {
-			case start:
+			case NORDIC_COMMAND_START:
 				sending_events = true;
 				break;			
-			case stop:
+			case NORDIC_COMMAND_STOP:
 				sending_events = false;
 				break;
-			case info:
+			case NORDIC_COMMAND_INFO:
 				send_system_description();
 				break;			
 			}
@@ -89,7 +89,7 @@ void profiler_sleep(void)
 	k_wakeup(protocol_thread_id);
 }
 
-u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, const u8_t arg_cnt)
+u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
 	u8_t pos = 0;
 	pos += sprintf(descr[num_events], "%s,%d", name, num_events);
@@ -129,19 +129,14 @@ void event_log_add_8(struct log_event_buf *buf, u8_t data)
 
 void event_log_add_16(struct log_event_buf *buf, u16_t data)
 {
-	*(buf->pPayload) = (data>>8) & 255;
-	buf->pPayload++;
-	*(buf->pPayload) = data & 255;
-	buf->pPayload++;
+	sys_put_le16(data, buf->pPayload);
+	buf->pPayload += 2;
 }
 
 void event_log_add_32(struct log_event_buf *buf, u32_t data)
 {
-	u8_t i;
-	for (i = 0; i < 4; i++){
-		*(buf->pPayload) = ((data>>(8*i)) & 255);
-		buf->pPayload++;	
-	}	
+	sys_put_le32(data, buf->pPayload);
+	buf->pPayload += 4;
 }
 
 void event_log_add_mem_address(struct log_event_buf *buf, const void *mem_address)

@@ -171,11 +171,11 @@ static void event_manager_show_subscribers(void)
 static void register_predefined_events()
 {
 	u16_t profiler_event_id;
-	//event execution start event after last event
+	/** event execution start event after last event */
 	profiler_event_id = profiler_register_event_type("event_processing_start", NULL, NULL, 0);
 	profiler_event_ids[__stop_event_types - __start_event_types + 1] = profiler_event_id;
 	
-	//event execution stop event 
+	/** event execution stop event */
 	profiler_event_id = profiler_register_event_type("event_processing_end", NULL, NULL, 0);
 	profiler_event_ids[__stop_event_types - __start_event_types + 2] = profiler_event_id;
 }

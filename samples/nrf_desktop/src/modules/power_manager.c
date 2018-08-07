@@ -14,7 +14,7 @@
 #include <gpio.h>
 
 #include <misc/printk.h>
-#include <system_profiler.h>
+#include <profiler.h>
 
 #include "power_event.h"
 #include "module_state_event.h"

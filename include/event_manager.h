@@ -66,7 +66,7 @@
 #include <misc/__assert.h>
 
 #include <event_manager_priv.h>
-#include <system_profiler.h>
+#include <profiler.h>
 
 #ifdef __cplusplus
 extern "C" {
