@@ -129,6 +129,7 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
 	}
 	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);
+	__DMB();	
 	num_events++;
 	return num_events - 1;
 }
