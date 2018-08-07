@@ -142,7 +142,7 @@ extern "C" {
 	_EVENT_TYPECHECK_FN(ename)
 
 
-#define _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, log_info_fn)										\
+#define _EVENT_TYPE_DEFINE(ename, print_fn, prof_info_struct)										\
 	_EVENT_SUBSCRIBERS_DEFINE(ename);										\
 	const struct event_type _CONCAT(__event_type_, ename) __used							\
 	__attribute__((__section__("event_types"))) = {									\
@@ -158,8 +158,7 @@ extern "C" {
 			[_SUBS_PRIO_FINAL]	= _EVENT_SUBSCRIBERS_STOP(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL)),	\
 		},													\
 		.print_event			= print_fn,								\
-		.log_args			= log_fn,								\
-		.log_info			= log_info_fn,									\
+		.prof_info			= prof_info_struct,									\
 	}
 
 

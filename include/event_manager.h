@@ -127,18 +127,18 @@ struct event_subscriber {
 
 /** @brief Event description for profiling or logging.
  */
-struct event_log_info {
-	/** Function to log this event */
-	void (*log_args)(const struct event_header* eh, struct log_event_buf *buf);
+struct profiler_info {
+	/** Function to log this event. */
+	int (*log_args)(const struct event_header *eh, struct log_event_buf *buf);
 
-	/** Number of logged datafields */
+	/** Number of logged datafields. */
 	const u8_t log_args_cnt;
 
-	/** Labels of logged datafields  */
+	/** Labels of logged datafields. */
 	const char **log_args_labels;
 	
-	/** Types of logged datafields */
-	const enum data_type* log_args_types;
+	/** Types of logged datafields. */
+	const enum data_type *log_args_types;
 };
 
 
@@ -158,14 +158,8 @@ struct event_type {
 	/** Function to print this event. */
 	void (*print_event)(const struct event_header *eh);
 
-	/** Function to log this event */
-	void (*log_args)(const struct event_header* eh, struct log_event_buf *buf);
-
-	/** Structore with logging information and functions */
-	struct event_log_info* log_info;
-
-	/** Event description */
-	const char *description;
+	/** Logging and formatting information. */
+	struct profiler_info *prof_info;
 };
 
 
@@ -241,7 +235,7 @@ extern const struct event_type __stop_event_types[];
  * @param ename     Name of the event.
  * @param print_fn  Function to stringify event of this type.
  */
-#define EVENT_TYPE_DEFINE(ename, print_fn, log_fn, log_info_fn) _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, log_info_fn)
+#define EVENT_TYPE_DEFINE(ename, print_fn, prof_info_struct) _EVENT_TYPE_DEFINE(ename, print_fn, prof_info_struct)
 
 
 /** @def ASSERT_EVENT_ID

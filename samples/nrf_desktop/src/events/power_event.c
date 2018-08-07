@@ -7,7 +7,7 @@
 #include "power_event.h"
 #define LOG_ARG_CNT 0
 
-EVENT_TYPE_DEFINE(power_down_event, NULL, NULL, NULL);
+EVENT_TYPE_DEFINE(power_down_event, NULL, NULL);
 
 static void print_event(const struct event_header *eh)
 {
@@ -16,14 +16,15 @@ static void print_event(const struct event_header *eh)
 	printk("requested by %s", event->module_name);
 }
 
-static void log_args(const struct event_header* eh, struct log_event_buf *buf)
+static int log_args(const struct event_header *eh, struct log_event_buf *buf)
 {
+	return 0;
 }
 
 static const enum data_type log_args_types[LOG_ARG_CNT] = {};
-static const char * log_args_labels[LOG_ARG_CNT] = {};
+static const char *log_args_labels[LOG_ARG_CNT] = {};
 
-static struct event_log_info log_info = {
+static struct profiler_info prof_info = {
 	.log_args = log_args,
 	.log_args_cnt = LOG_ARG_CNT,
 	.log_args_labels = log_args_labels,
@@ -31,4 +32,4 @@ static struct event_log_info log_info = {
 };
 
 
-EVENT_TYPE_DEFINE(keep_active_event, print_event, log_args, &log_info);
+EVENT_TYPE_DEFINE(keep_active_event, print_event, &prof_info);

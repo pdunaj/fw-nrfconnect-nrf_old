@@ -119,14 +119,14 @@ void _event_submit(struct event_header *eh)
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		const struct event_type *et = eh->type_id;
-		if(et->log_args) {		
+		if(et->prof_info && et->prof_info->log_args) {		
 			struct log_event_buf buf;
 			ARG_UNUSED(buf);
 			event_log_start(&buf);
 			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 				event_log_add_mem_address(eh, &buf);
 			}
-			et->log_args(eh, &buf);
+			et->prof_info->log_args(eh, &buf);
 			event_log_send(profiler_event_ids[et - __start_event_types], &buf);
 		}			
 	}
@@ -198,11 +198,11 @@ static void register_events()
 	for (const struct event_type *et = __start_event_types;
 	     (et != NULL) && (et != __stop_event_types);
 	     et++) {
-		if (et->log_info) {
+		if (et->prof_info) {
 			u16_t profiler_event_id;
 			profiler_event_id = profiler_register_event_type(et->name, 
-				et->log_info->log_args_labels, et->log_info->log_args_types, 
-				et->log_info->log_args_cnt);
+				et->prof_info->log_args_labels, et->prof_info->log_args_types, 
+				et->prof_info->log_args_cnt);
 			profiler_event_ids[et - __start_event_types] = profiler_event_id;
 		}
  	}
