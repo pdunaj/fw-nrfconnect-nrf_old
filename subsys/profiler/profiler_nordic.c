@@ -82,11 +82,12 @@ int profiler_init(void)
 	return 0;
 }
 
-void profiler_sleep(void)
+void profiler_term(void)
 {
 	sending_events = false;
 	protocol_running = false;
 	k_wakeup(protocol_thread_id);
+	k_yield();
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)

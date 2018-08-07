@@ -44,9 +44,9 @@ struct log_event_buf
  */
 int profiler_init(void);
 
-/** @brief Funciton to put profiler to sleep.
+/** @brief Funciton to terminate profiler.
  */
-void profiler_sleep(void);
+void profiler_term(void);
 
 /** @brief Funciton to register type of event in system profiler.
  * 
