@@ -71,7 +71,7 @@ void event_log_start(struct log_event_buf *buf);
  * @param data Data to add to buffer.
  * @param buf Pointer to data buffer.
 */
-void event_log_add_32(u32_t data, struct log_event_buf *buf);
+void event_log_add_32(struct log_event_buf *buf, u32_t data);
 
 /* @brief Function to encode and add event's address in device's memory to buffer.
  * 
@@ -81,7 +81,7 @@ void event_log_add_32(u32_t data, struct log_event_buf *buf);
  * @param data Memory address to encode.
  * @param buf Pointer to data buffer.
 */
-void event_log_add_mem_address(const void *mem_address, struct log_event_buf *buf);
+void event_log_add_mem_address(struct log_event_buf *buf, const void *mem_address);
 
 /* @brief Function to send data added to buffer to host.
  *
@@ -90,7 +90,7 @@ void event_log_add_mem_address(const void *mem_address, struct log_event_buf *bu
  * @param event_type_id ID of event in system profiler. It is given to event type while it is registered.
  * @param buf Pointer to data buffer.
 */
-void event_log_send(u16_t event_type_id, struct log_event_buf *buf);
+void event_log_send(struct log_event_buf *buf, u16_t event_type_id);
 
 #else
 #define profiler_init() 0

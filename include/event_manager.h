@@ -129,7 +129,7 @@ struct event_subscriber {
  */
 struct profiler_info {
 	/** Function to log this event. */
-	int (*log_args)(const struct event_header *eh, struct log_event_buf *buf);
+	int (*log_args)(struct log_event_buf *buf, const struct event_header *eh);
 
 	/** Number of logged datafields. */
 	const u8_t log_args_cnt;
@@ -270,7 +270,6 @@ void _event_submit(struct event_header *eh);
  * @param event  Pointer to the event object.
  */
 #define EVENT_SUBMIT(event) _event_submit(&event->header)
-
 
 /** Initialize the event manager.
  *

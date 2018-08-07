@@ -89,7 +89,7 @@ void profiler_sleep(void)
 	k_wakeup(protocol_thread_id);
 }
 
-u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type* arg_types, const u8_t arg_cnt)
+u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, const u8_t arg_cnt)
 {
 	u8_t pos = 0;
 	pos += sprintf(descr[num_events], "%s,%d", name, num_events);
@@ -115,19 +115,19 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	return num_events - 1;
 }
 
-void event_log_start(struct log_event_buf* buf)
+void event_log_start(struct log_event_buf *buf)
 {
 	buf->pPayload = buf->pPayloadStart;
-	event_log_add_32(k_cycle_get_32(), buf);
+	event_log_add_32(buf, k_cycle_get_32());
 }
 
-void event_log_add_8(u8_t data, struct log_event_buf* buf)
+void event_log_add_8(struct log_event_buf *buf, u8_t data)
 {
 	*(buf->pPayload) = data;
 	buf->pPayload++;
 }
 
-void event_log_add_16(u16_t data, struct log_event_buf* buf)
+void event_log_add_16(struct log_event_buf *buf, u16_t data)
 {
 	*(buf->pPayload) = (data>>8) & 255;
 	buf->pPayload++;
@@ -135,7 +135,7 @@ void event_log_add_16(u16_t data, struct log_event_buf* buf)
 	buf->pPayload++;
 }
 
-void event_log_add_32(u32_t data, struct log_event_buf* buf)
+void event_log_add_32(struct log_event_buf *buf, u32_t data)
 {
 	u8_t i;
 	for (i = 0; i < 4; i++){
@@ -144,12 +144,12 @@ void event_log_add_32(u32_t data, struct log_event_buf* buf)
 	}	
 }
 
-void event_log_add_mem_address(const void *mem_address, struct log_event_buf* buf)
+void event_log_add_mem_address(struct log_event_buf *buf, const void *mem_address)
 {
-	event_log_add_32((u32_t)mem_address, buf);
+	event_log_add_32(buf, (u32_t)mem_address);
 }
 
-void event_log_send(u16_t event_type_id, struct log_event_buf* buf)
+void event_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
 	if (sending_events) {
 		u8_t type_id = event_type_id & 255;

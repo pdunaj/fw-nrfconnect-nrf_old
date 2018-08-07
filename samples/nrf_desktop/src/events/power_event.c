@@ -16,7 +16,7 @@ static void print_event(const struct event_header *eh)
 	printk("requested by %s", event->module_name);
 }
 
-static int log_args(const struct event_header *eh, struct log_event_buf *buf)
+static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 {
 	return 0;
 }

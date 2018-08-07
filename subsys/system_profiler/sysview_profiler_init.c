@@ -11,7 +11,7 @@
 extern k_tid_t const _idle_thread;
 #endif
 
-static inline int is_idle_thread(struct k_thread *thread)
+static int is_idle_thread(struct k_thread *thread)
 {
 #ifdef CONFIG_SMP
 	return thread->base.is_idle;

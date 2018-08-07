@@ -21,19 +21,18 @@ struct SEGGER_SYSVIEW_MODULE_STRUCT events = {
 
 static void event_module_description(void) 
 {
-	u8_t i;	
-	for (i = 0; i < events.NumEvents; i++) {
+	for (size_t i = 0; i < events.NumEvents; i++) {
 		SEGGER_SYSVIEW_RecordModuleDescription(&events, descr[i]);
 	}
 }
 
-u32_t inline subtract_sram_base_from_mem_address(const void *event_mem_address)
+u32_t static shorten_mem_address(const void *event_mem_address)
 {
-       #ifdef CONFIG_SRAM_BASE_ADDRESS
-                return (u32_t)(event_mem_address - CONFIG_SRAM_BASE_ADDRESS);
-        #else
-                return (u32_t)event_mem_address;
-        #endif
+#ifdef CONFIG_SRAM_BASE_ADDRESS
+	return (u32_t)(event_mem_address - CONFIG_SRAM_BASE_ADDRESS);
+#else
+	return (u32_t)event_mem_address;
+#endif
 }
 
 
@@ -45,12 +44,6 @@ int profiler_init(void)
 			SEGGER_SYSVIEW_Start();
 		}
 	}
-
-/* Currently not supported
-	if (IS_ENABLED(CONFIG_SYSVIEW_LOG_KERNEL_EVENTS)) {
-		kernel_event_logger_init();
-	}
-*/
 
 	SEGGER_SYSVIEW_RegisterModule(&events);
 	return 0;
@@ -85,17 +78,17 @@ void event_log_start(struct log_event_buf *buf)
 	buf->pPayload = buf->pPayloadStart + 4; 
 }
 
-void event_log_add_32(u32_t data, struct log_event_buf *buf)
+void event_log_add_32(struct log_event_buf *buf, u32_t data)
 {
 	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, data);
 }
 
-void event_log_add_mem_address(const void *event_mem_addres, struct log_event_buf *buf)
+void event_log_add_mem_address(struct log_event_buf *buf, const void *event_mem_addres)
 {
-	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, subtract_sram_base_from_mem_address(event_mem_addres));
+	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, shorten_mem_address(event_mem_addres));
 }
 
-void event_log_send(u16_t event_type_id, struct log_event_buf *buf)
+void event_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
 	SEGGER_SYSVIEW_SendPacket(buf->pPayloadStart, buf->pPayload, event_type_id);
 }
