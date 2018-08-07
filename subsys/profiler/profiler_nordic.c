@@ -71,10 +71,19 @@ static void profiler_nordic_thread(void)
 int profiler_init(void)
 {
 	protocol_running = true;
-	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, "Nordic profiler data", buffer_data, CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, "Nordic profiler info", buffer_info, CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	SEGGER_RTT_ConfigDownBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, "Nordic profiler command", buffer_commands, CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-
+	int ret;
+	ret = SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
+		"Nordic profiler data", buffer_data, CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE,
+	       	SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+	__ASSERT_NO_MSG(ret>=0);
+	ret = SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, 
+		"Nordic profiler info", buffer_info, CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE,
+		SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+	 __ASSERT_NO_MSG(ret>=0);  
+	ret = SEGGER_RTT_ConfigDownBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS,
+		"Nordic profiler command", buffer_commands, CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE,
+	       	SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+	 __ASSERT_NO_MSG(ret>=0);
 	protocol_thread_id =  k_thread_create(&profiler_nordic_stack_data, profiler_nordic_stack,
 			K_THREAD_STACK_SIZEOF(profiler_nordic_stack),
 			(k_thread_entry_t) profiler_nordic_thread,
