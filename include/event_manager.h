@@ -138,7 +138,7 @@ struct profiler_info {
 	const char **log_args_labels;
 	
 	/** Types of logged datafields. */
-	const enum data_type *log_args_types;
+	const enum profiler_arg *log_args_types;
 };
 
 

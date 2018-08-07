@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-5-Clause-Nordic
  */
 
-
 #ifndef _SYSVIEW_EVENT_LOGGER_INIT_H_
 #define _SYSVIEW_EVENT_LOGGER_INIT_H
 
@@ -17,6 +16,5 @@
 
 u32_t sysview_get_timestamp(void);
 void SEGGER_SYSVIEW_Conf(void);
-
 
 #endif /* _SYSVIEW_EVENT_LOGGER_INIT_H */

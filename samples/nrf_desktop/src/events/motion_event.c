@@ -24,7 +24,7 @@ static int log_args(const struct event_header *eh, struct log_event_buf *buf)
 	return 0;
 }
 
-static const enum data_type log_args_types[LOG_ARG_CNT] = {s32, s32};
+static const enum profiler_arg log_args_types[LOG_ARG_CNT] = {PROFILER_ARG_S32, PROFILER_ARG_S32};
 static const char *log_args_labels[LOG_ARG_CNT] = {"dx", "dy"};
 
 static struct profiler_info prof_info = {

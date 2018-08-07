@@ -61,7 +61,7 @@ void profiler_sleep(void)
 
 }
 
-u16_t profiler_register_event_type(const char *name, const char **args, const enum data_type *arg_types, const u8_t arg_cnt)
+u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, const u8_t arg_cnt)
 {
 	u8_t event_number = events.NumEvents;
 	u8_t pos = 0;
@@ -79,23 +79,23 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	return events.EventOffset + event_number;
 }
 
-void event_log_start(struct log_event_buf* b)
+void event_log_start(struct log_event_buf *buf)
 {
 	/* protocol implementation in SysView demands incrementing pointer by 4 on start */
-	b->pPayload = b->pPayloadStart + 4; 
+	buf->pPayload = buf->pPayloadStart + 4; 
 }
 
-void event_log_add_32(u32_t data, struct log_event_buf* b)
+void event_log_add_32(u32_t data, struct log_event_buf *buf)
 {
-	b->pPayload = SEGGER_SYSVIEW_EncodeU32(b->pPayload, data);
+	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, data);
 }
 
-void event_log_add_mem_address(const void *event_mem_addres, struct log_event_buf* b)
+void event_log_add_mem_address(const void *event_mem_addres, struct log_event_buf *buf)
 {
-	b->pPayload = SEGGER_SYSVIEW_EncodeU32(b->pPayload, subtract_sram_base_from_mem_address(event_mem_addres));
+	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, subtract_sram_base_from_mem_address(event_mem_addres));
 }
 
-void event_log_send(u16_t event_type_id, struct log_event_buf* b)
+void event_log_send(u16_t event_type_id, struct log_event_buf *buf)
 {
-	SEGGER_SYSVIEW_SendPacket(b->pPayloadStart, b->pPayload, event_type_id);
+	SEGGER_SYSVIEW_SendPacket(buf->pPayloadStart, buf->pPayload, event_type_id);
 }
