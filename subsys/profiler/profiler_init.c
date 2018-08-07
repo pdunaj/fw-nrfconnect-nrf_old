@@ -7,19 +7,6 @@
 
 #include <sysview_profiler_init.h>
 
-#ifndef CONFIG_SMP
-extern k_tid_t const _idle_thread;
-#endif
-
-static int is_idle_thread(struct k_thread *thread)
-{
-#ifdef CONFIG_SMP
-	return thread->base.is_idle;
-#else
-	return thread == _idle_thread;
-#endif
-}
-
 static U64 get_time_cb(void)
 {
 	return (U64)k_cycle_get_32();
@@ -27,27 +14,7 @@ static U64 get_time_cb(void)
 
 static void send_task_list_cb(void)
 {
-#ifdef CONFIG_SYSVIEW_LOG_KERNEL_EVENTS_THREAD
-	struct k_thread *thread;
 
-	for (thread = _kernel.threads; thread; thread = thread->next_thread) {
-		char name[20];
-
-		if (is_idle_thread(thread)) {
-			continue;
-		}
-
-		snprintk(name, sizeof(name), "T%xE%x", (uintptr_t)thread,
-			 (uintptr_t)&thread->entry);
-		SEGGER_SYSVIEW_SendTaskInfo(&(SEGGER_SYSVIEW_TASKINFO) {
-			.TaskID = (u32_t)(uintptr_t)thread,
-			.sName = name,
-			.StackSize = thread->stack_info.size,
-			.StackBase = thread->stack_info.start,
-			.Prio = thread->base.prio,
-		});
-	}
-#endif
 }
 
 /* Services provided to SYSVIEW by Zephyr */

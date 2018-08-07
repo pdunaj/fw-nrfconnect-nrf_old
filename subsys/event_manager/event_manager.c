@@ -109,12 +109,12 @@ void _event_submit(struct event_header *eh)
 		if(et->prof_info && et->prof_info->log_args) {		
 			struct log_event_buf buf;
 			ARG_UNUSED(buf);
-			event_log_start(&buf);
+			profiler_log_start(&buf);
 			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-				event_log_add_mem_address(&buf, eh);
+				profiler_log_add_mem_address(&buf, eh);
 			}
 			et->prof_info->log_args(&buf, eh);
-			event_log_send(&buf, profiler_event_ids[et - __start_event_types]);
+			profiler_log_send(&buf, profiler_event_ids[et - __start_event_types]);
 		}			
 	}
 	k_work_submit(&event_processor);
@@ -203,10 +203,10 @@ static void trace_event_execution(const struct event_header *eh, bool is_start)
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 		struct log_event_buf buf;
 		ARG_UNUSED(buf);
-		event_log_start(&buf);
-		event_log_add_mem_address(&buf, eh);
+		profiler_log_start(&buf);
+		profiler_log_add_mem_address(&buf, eh);
 		/* Event execution end in event manager has next id after all the events adn event execution start */
-		event_log_send(&buf, profiler_event_ids[__stop_event_types - __start_event_types + (is_start ? 1 : 2 )]);
+		profiler_log_send(&buf, profiler_event_ids[__stop_event_types - __start_event_types + (is_start ? 1 : 2 )]);
 	}
 }
 

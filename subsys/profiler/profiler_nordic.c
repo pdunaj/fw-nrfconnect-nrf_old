@@ -20,7 +20,15 @@ enum nordic_command
 };
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
-static char *arg_types_encodings[] = {"u8", "s8", "u16", "s16", "u32", "s32", "s", "t" };
+static char *arg_types_encodings[] = {	"u8",  //u8_t
+					"s8",  //s8_t
+					"u16", //u16_t
+					"s16", //s16_t
+					"u32", //u32_t
+					"s32", //s32_t
+					"s",   //string
+					"t"    //time
+					};
 
 static u8_t buffer_data[CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE];
 static u8_t buffer_info[CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE];
@@ -102,59 +110,47 @@ void profiler_term(void)
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
 	u8_t pos = 0;
-	pos += sprintf(descr[num_events], "%s,%d", name, num_events);
+	pos += snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-		pos += sprintf(descr[num_events] + pos, ",%s", "u32");
+		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", "u32");
 	}	
 
 	u8_t t;
 	for(t = 0; t < arg_cnt; t++) {
-		pos += sprintf(descr[num_events] + pos, ",%s", arg_types_encodings[arg_types[t]]);
+		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", arg_types_encodings[arg_types[t]]);
 	}
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-		pos += sprintf(descr[num_events] + pos, ",%s", "mem_address");
+		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", "mem_address");
 	}
 	
 	for(t = 0; t < arg_cnt; t++) {
-		pos += sprintf(descr[num_events] + pos, ",%s", args[t]);
+		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
 	}
-	descr[num_events][pos] = '\0';
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);
 	num_events++;
 	return num_events - 1;
 }
 
-void event_log_start(struct log_event_buf *buf)
+void profiler_log_start(struct log_event_buf *buf)
 {
 	buf->pPayload = buf->pPayloadStart;
-	event_log_add_32(buf, k_cycle_get_32());
+	profiler_log_encode_u32(buf, k_cycle_get_32());
 }
 
-void event_log_add_8(struct log_event_buf *buf, u8_t data)
-{
-	*(buf->pPayload) = data;
-	buf->pPayload++;
-}
-
-void event_log_add_16(struct log_event_buf *buf, u16_t data)
-{
-	sys_put_le16(data, buf->pPayload);
-	buf->pPayload += 2;
-}
-
-void event_log_add_32(struct log_event_buf *buf, u32_t data)
+void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data)
 {
 	sys_put_le32(data, buf->pPayload);
 	buf->pPayload += 4;
 }
 
-void event_log_add_mem_address(struct log_event_buf *buf, const void *mem_address)
+void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address)
 {
-	event_log_add_32(buf, (u32_t)mem_address);
+	profiler_log_encode_u32(buf, (u32_t)mem_address);
 }
 
-void event_log_send(struct log_event_buf *buf, u16_t event_type_id)
+void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
 	if (sending_events) {
 		u8_t type_id = event_type_id & 255;

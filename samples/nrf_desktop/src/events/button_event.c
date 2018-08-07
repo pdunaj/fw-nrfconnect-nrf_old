@@ -20,8 +20,8 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 {
 	struct button_event *event = cast_button_event(eh);
 	ARG_UNUSED(event);
-	event_log_add_32(buf, event->key_id);
-	event_log_add_32(buf, (event->pressed)?(1):(0));
+	profiler_log_encode_u32(buf, event->key_id);
+	profiler_log_encode_u32(buf, (event->pressed)?(1):(0));
 	return 0;
 }
 
