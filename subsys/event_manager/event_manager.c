@@ -18,8 +18,8 @@ static sys_dlist_t eventq = SYS_DLIST_STATIC_INIT(&eventq);
 
 static u16_t *profiler_id_table;
 #ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
-extern u16_t __start_profiler_ids;
-extern u16_t __stop_profiler_ids;
+extern u16_t __start_profiler_ids[];
+extern u16_t __stop_profiler_ids[];
 #endif
 
 static void event_processor_fn(struct k_work *work)
@@ -223,8 +223,9 @@ static void trace_event_execution(const struct event_header *eh, bool is_start)
 
 int event_manager_init(void)
 {
+
 #ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
-	profiler_id_table = &__start_profiler_ids;
+	profiler_id_table = __start_profiler_ids;
 #endif
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		if (profiler_init()) {
