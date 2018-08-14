@@ -184,11 +184,11 @@ static void register_predefined_events()
 	u16_t profiler_event_id;
 	/** event execution start event after last event */
 	profiler_event_id = profiler_register_event_type("event_processing_start", labels, types, 1);
-	profiler_id_table[__stop_event_types - __start_event_types + 1] = profiler_event_id;
+	profiler_id_table[__stop_event_types - __start_event_types] = profiler_event_id;
 		
 	/** event execution end event */
 	profiler_event_id = profiler_register_event_type("event_processing_end", labels, types, 1);
-	profiler_id_table[__stop_event_types - __start_event_types + 2] = profiler_event_id;
+	profiler_id_table[__stop_event_types - __start_event_types + 1] = profiler_event_id;
 }
 
 static void register_events()
