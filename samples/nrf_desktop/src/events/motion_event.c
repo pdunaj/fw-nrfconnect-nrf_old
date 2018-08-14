@@ -5,8 +5,6 @@
  */
 
 #include "motion_event.h"
-#define LOG_ARG_CNT 2
-
 
 static void print_event(const struct event_header *eh)
 {
@@ -24,15 +22,8 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 	return 0;
 }
 
-static const enum profiler_arg log_args_types[LOG_ARG_CNT] = {PROFILER_ARG_S32, PROFILER_ARG_S32};
-static const char *log_args_labels[LOG_ARG_CNT] = {"dx", "dy"};
+//static const enum profiler_arg log_arg_types[] = {PROFILER_ARG_S32, PROFILER_ARG_S32};
+//static const char *log_arg_labels[] = {"dx", "dy"};
 
-static struct profiler_info prof_info = {
-	.log_args = log_args,
-	.log_args_cnt = LOG_ARG_CNT,
-	.log_args_labels = log_args_labels,
-	.log_args_types = log_args_types,
-};
-
-
-EVENT_TYPE_DEFINE(motion_event, print_event, &prof_info);
+EVENT_INFO_DEFINE(motion_event, WRAP(PROFILER_ARG_S32, PROFILER_ARG_S32), WRAP("dx", "dy") , log_args);
+EVENT_TYPE_DEFINE(motion_event, print_event, &ev_info);

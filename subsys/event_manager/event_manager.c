@@ -16,7 +16,11 @@ K_WORK_DEFINE(event_processor, event_processor_fn);
 
 static sys_dlist_t eventq = SYS_DLIST_STATIC_INIT(&eventq);
 
-static u16_t *profiler_event_ids;
+static u16_t *profiler_id_table;
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+extern u16_t __start_profiler_ids;
+extern u16_t __stop_profiler_ids;
+#endif
 
 static void event_processor_fn(struct k_work *work)
 {
@@ -106,15 +110,15 @@ void _event_submit(struct event_header *eh)
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		const struct event_type *et = eh->type_id;
-		if(et->prof_info && et->prof_info->log_args) {		
+		if(et->ev_info && et->ev_info->log_args) {		
 			struct log_event_buf buf;
 			ARG_UNUSED(buf);
 			profiler_log_start(&buf);
 			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 				profiler_log_add_mem_address(&buf, eh);
 			}
-			et->prof_info->log_args(&buf, eh);
-			profiler_log_send(&buf, profiler_event_ids[et - __start_event_types]);
+			et->ev_info->log_args(&buf, eh);
+			profiler_log_send(&buf, profiler_id_table[et - __start_event_types]);
 		}			
 	}
 	k_work_submit(&event_processor);
@@ -170,14 +174,21 @@ static void event_manager_show_subscribers(void)
 
 static void register_predefined_events()
 {
+	/** allocating space for predefined events ids */
+	static u16_t predefined_events [2] __used __attribute__((__section__("profiler_ids")));
+
+	const enum profiler_arg types[] = {PROFILER_ARG_U32};
+	const char *labels[] = {"mem_address"};
+	ARG_UNUSED(types);
+	ARG_UNUSED(labels);
 	u16_t profiler_event_id;
 	/** event execution start event after last event */
-	profiler_event_id = profiler_register_event_type("event_processing_start", NULL, NULL, 0);
-	profiler_event_ids[__stop_event_types - __start_event_types + 1] = profiler_event_id;
-	
-	/** event execution stop event */
-	profiler_event_id = profiler_register_event_type("event_processing_end", NULL, NULL, 0);
-	profiler_event_ids[__stop_event_types - __start_event_types + 2] = profiler_event_id;
+	profiler_event_id = profiler_register_event_type("event_processing_start", labels, types, 1);
+	profiler_id_table[__stop_event_types - __start_event_types + 1] = profiler_event_id;
+		
+	/** event execution end event */
+	profiler_event_id = profiler_register_event_type("event_processing_end", labels, types, 1);
+	profiler_id_table[__stop_event_types - __start_event_types + 2] = profiler_event_id;
 }
 
 static void register_events()
@@ -185,12 +196,12 @@ static void register_events()
 	for (const struct event_type *et = __start_event_types;
 	     (et != NULL) && (et != __stop_event_types);
 	     et++) {
-		if (et->prof_info) {
+		if (et->ev_info) {
 			u16_t profiler_event_id;
 			profiler_event_id = profiler_register_event_type(et->name, 
-				et->prof_info->log_args_labels, et->prof_info->log_args_types, 
-				et->prof_info->log_args_cnt);
-			profiler_event_ids[et - __start_event_types] = profiler_event_id;
+				et->ev_info->log_args_labels, et->ev_info->log_args_types, 
+				et->ev_info->log_args_cnt);
+			profiler_id_table[et - __start_event_types] = profiler_event_id;
 		}
  	}
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
@@ -206,17 +217,15 @@ static void trace_event_execution(const struct event_header *eh, bool is_start)
 		profiler_log_start(&buf);
 		profiler_log_add_mem_address(&buf, eh);
 		/* Event execution end in event manager has next id after all the events adn event execution start */
-		profiler_log_send(&buf, profiler_event_ids[__stop_event_types - __start_event_types + (is_start ? 1 : 2 )]);
+		profiler_log_send(&buf, profiler_id_table[__stop_event_types - __start_event_types + (is_start ? 1 : 2 )]);
 	}
 }
 
 int event_manager_init(void)
 {
-	profiler_event_ids = k_malloc((__stop_event_types - __start_event_types + 2) * sizeof(u16_t));
-	if (!profiler_event_ids) {
-		printk("Event manager: memory allocation failed \n");
-		return -1;
-	}
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+	profiler_id_table = &__start_profiler_ids;
+#endif
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		if (profiler_init()) {
 			printk("System profiler: initialization problem \n");

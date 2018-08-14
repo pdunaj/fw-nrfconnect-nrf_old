@@ -127,7 +127,7 @@ struct event_subscriber {
 
 /** @brief Event description for profiling or logging.
  */
-struct profiler_info {
+struct event_info {
 	/** Function to log this event. */
 	int (*log_args)(struct log_event_buf *buf, const struct event_header *eh);
 
@@ -159,7 +159,7 @@ struct event_type {
 	void (*print_event)(const struct event_header *eh);
 
 	/** Logging and formatting information. */
-	struct profiler_info *prof_info;
+	const struct event_info *ev_info;
 };
 
 
@@ -213,6 +213,18 @@ extern const struct event_type __stop_event_types[];
 	_EVENT_SUBSCRIBE(lname, ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL));			\
 	const struct {} _CONCAT(_CONCAT(__event_subscriber_, ename), final_sub_redefined) = {}
 
+/** @def EVENT_TYPE_DECLARE
+ *
+ * @brief Declare event logging information.
+ *
+ * Macro provides declarations required for event to be logged by profiler.
+ *
+ * @param ename  Name of the event.
+ * @param types Types of values to log.
+ * @param labels Labels of values to log (represented as enum).
+ * @param log_arg_fn Function used to log event data.
+ */
+#define EVENT_INFO_DEFINE(ename, types, labels, log_arg_fn) _EVENT_INFO_DEFINE(ename, WRAP(types), WRAP(labels), log_arg_fn)
 
 /** @def EVENT_TYPE_DECLARE
  *
@@ -235,7 +247,7 @@ extern const struct event_type __stop_event_types[];
  * @param ename     Name of the event.
  * @param print_fn  Function to stringify event of this type.
  */
-#define EVENT_TYPE_DEFINE(ename, print_fn, prof_info_struct) _EVENT_TYPE_DEFINE(ename, print_fn, prof_info_struct)
+#define EVENT_TYPE_DEFINE(ename, print_fn, ev_info_struct) _EVENT_TYPE_DEFINE(ename, print_fn, ev_info_struct)
 
 
 /** @def ASSERT_EVENT_ID

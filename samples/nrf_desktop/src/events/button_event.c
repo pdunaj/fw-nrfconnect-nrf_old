@@ -5,7 +5,6 @@
  */
 
 #include "button_event.h"
-#define LOG_ARG_CNT 2
 
 static void print_event(const struct event_header *eh)
 {
@@ -25,15 +24,5 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 	return 0;
 }
 
-static const enum profiler_arg log_args_types[LOG_ARG_CNT] = {PROFILER_ARG_U32, PROFILER_ARG_U32};
-static const char *log_args_labels[LOG_ARG_CNT] = {"button_id", "status"};
-
-static struct profiler_info prof_info = {
-	.log_args = log_args,
-	.log_args_cnt = LOG_ARG_CNT,
-	.log_args_labels = log_args_labels,
-	.log_args_types = log_args_types,
-};
-
-
-EVENT_TYPE_DEFINE(button_event, print_event, &prof_info);
+EVENT_INFO_DEFINE(button_event, WRAP(PROFILER_ARG_U32, PROFILER_ARG_U32), WRAP("button_id", "status"), log_args);
+EVENT_TYPE_DEFINE(button_event, print_event, &ev_info);

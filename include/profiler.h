@@ -94,6 +94,7 @@ void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id);
 
 #else
 #define profiler_init() 0
+#define profiler_term()
 #define profiler_sleep()
 #define profiler_register_event_type(name, args, arg_types, arg_cnt) 0;
 #define profiler_log_start(b)

@@ -112,17 +112,9 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	u8_t pos = 0;
 	pos += snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
 
-	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", "u32");
-	}	
-
 	u8_t t;
 	for(t = 0; t < arg_cnt; t++) {
 		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", arg_types_encodings[arg_types[t]]);
-	}
-
-	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", "mem_address");
 	}
 	
 	for(t = 0; t < arg_cnt; t++) {
@@ -153,6 +145,7 @@ void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_add
 
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
+	__ASSERT_NO_MSG(event_type_id < 256);
 	if (sending_events) {
 		u8_t type_id = event_type_id & 255;
 		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, &type_id, 1);
