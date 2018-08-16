@@ -156,7 +156,6 @@ extern "C" {
 		
 
 #define _EVENT_INFO_DEFINE(ename, types, labels, log_arg_fn)			\
-	_EVENT_MEM_ALLOCATE_PROFILER_ID(ename)					\
 	_ARG_LABELS_DEFINE(labels)					 	\
 	_ARG_TYPES_DEFINE(types)						\
         const static struct event_info ev_info __used                           \
@@ -183,6 +182,28 @@ extern "C" {
 	_EVENT_CASTER_FN(ename);					\
 	_EVENT_TYPECHECK_FN(ename)
 
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+
+#define _EVENT_TYPE_DEFINE(ename, print_fn, ev_info_struct)								\
+	_EVENT_SUBSCRIBERS_DEFINE(ename);										\
+	_EVENT_MEM_ALLOCATE_PROFILER_ID(ename)										\
+	const struct event_type _CONCAT(__event_type_, ename) __used							\
+	__attribute__((__section__("event_types"))) = {									\
+		.name				= STRINGIFY(ename),							\
+		.subs_start	= {											\
+			[_SUBS_PRIO_FIRST]	= _EVENT_SUBSCRIBERS_START(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FIRST)),	\
+			[_SUBS_PRIO_NORMAL]	= _EVENT_SUBSCRIBERS_START(ename, _SUBS_PRIO_ID(_SUBS_PRIO_NORMAL)),	\
+			[_SUBS_PRIO_FINAL]	= _EVENT_SUBSCRIBERS_START(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL)),	\
+		},													\
+		.subs_stop	= {											\
+			[_SUBS_PRIO_FIRST]	= _EVENT_SUBSCRIBERS_STOP(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FIRST)),	\
+			[_SUBS_PRIO_NORMAL]	= _EVENT_SUBSCRIBERS_STOP(ename, _SUBS_PRIO_ID(_SUBS_PRIO_NORMAL)),	\
+			[_SUBS_PRIO_FINAL]	= _EVENT_SUBSCRIBERS_STOP(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL)),	\
+		},													\
+		.print_event			= print_fn,								\
+		.ev_info			= ev_info_struct,							\
+	}
+#else
 
 #define _EVENT_TYPE_DEFINE(ename, print_fn, ev_info_struct)								\
 	_EVENT_SUBSCRIBERS_DEFINE(ename);										\
@@ -203,6 +224,7 @@ extern "C" {
 		.ev_info			= ev_info_struct,							\
 	}
 
+#endif
 
 #ifdef __cplusplus
 }
