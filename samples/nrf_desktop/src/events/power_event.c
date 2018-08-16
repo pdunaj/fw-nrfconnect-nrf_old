@@ -20,8 +20,5 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 	return 0;
 }
 
-//static const enum profiler_arg log_arg_types[] = {};
-//static const char *log_arg_labels[] = {};
-
-EVENT_INFO_DEFINE(keep_active_event, WRAP(), WRAP(), log_args);
+EVENT_INFO_DEFINE(keep_active_event, ENCODE(), ENCODE(), log_args);
 EVENT_TYPE_DEFINE(keep_active_event, print_event, &ev_info);

@@ -127,8 +127,6 @@ extern "C" {
 
 /* Declarations and definitions - for more details refer to public API. */
 
-#define WRAP(...) __VA_ARGS__
-
 #ifdef CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
 
 #define _ARG_LABELS_DEFINE(...) \
@@ -153,8 +151,8 @@ extern "C" {
 
 
 #define _EVENT_MEM_ALLOCATE_PROFILER_ID(ename) 			\
-	u16_t ename __used                           		\
-       __attribute__((__section__("profiler_ids")));		\
+	static u16_t ename __used                           	\
+	__attribute__((__section__("profiler_ids")));		\
 		
 
 #define _EVENT_INFO_DEFINE(ename, types, labels, log_arg_fn)			\

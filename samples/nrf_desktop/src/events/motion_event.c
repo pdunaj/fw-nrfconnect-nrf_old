@@ -22,8 +22,5 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 	return 0;
 }
 
-//static const enum profiler_arg log_arg_types[] = {PROFILER_ARG_S32, PROFILER_ARG_S32};
-//static const char *log_arg_labels[] = {"dx", "dy"};
-
-EVENT_INFO_DEFINE(motion_event, WRAP(PROFILER_ARG_S32, PROFILER_ARG_S32), WRAP("dx", "dy") , log_args);
+EVENT_INFO_DEFINE(motion_event, ENCODE(PROFILER_ARG_S32, PROFILER_ARG_S32), ENCODE("dx", "dy"), log_args);
 EVENT_TYPE_DEFINE(motion_event, print_event, &ev_info);

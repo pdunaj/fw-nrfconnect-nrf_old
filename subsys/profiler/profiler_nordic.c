@@ -111,12 +111,14 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 {
 	u8_t pos = 0;
 	pos += snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);
 
 	u8_t t;
 	for(t = 0; t < arg_cnt; t++) {
 		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", arg_types_encodings[arg_types[t]]);
 	}
-	
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);	
+
 	for(t = 0; t < arg_cnt; t++) {
 		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
 	}

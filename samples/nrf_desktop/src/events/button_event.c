@@ -24,5 +24,5 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 	return 0;
 }
 
-EVENT_INFO_DEFINE(button_event, WRAP(PROFILER_ARG_U32, PROFILER_ARG_U32), WRAP("button_id", "status"), log_args);
+EVENT_INFO_DEFINE(button_event, ENCODE(PROFILER_ARG_U32, PROFILER_ARG_U32), ENCODE("button_id", "status"), log_args);
 EVENT_TYPE_DEFINE(button_event, print_event, &ev_info);

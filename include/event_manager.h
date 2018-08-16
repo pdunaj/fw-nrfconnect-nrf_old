@@ -213,7 +213,15 @@ extern const struct event_type __stop_event_types[];
 	_EVENT_SUBSCRIBE(lname, ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL));			\
 	const struct {} _CONCAT(_CONCAT(__event_subscriber_, ename), final_sub_redefined) = {}
 
-/** @def EVENT_TYPE_DECLARE
+/** @def ENCODE
+ *
+ * @brief Encode event data types or labels.
+ *
+ * @param Data types or labels to be encoded.
+ */
+#define ENCODE(...) __VA_ARGS__
+
+/** @def EVENT_INFO_DEFINE
  *
  * @brief Declare event logging information.
  *
@@ -224,7 +232,7 @@ extern const struct event_type __stop_event_types[];
  * @param labels Labels of values to log (represented as enum).
  * @param log_arg_fn Function used to log event data.
  */
-#define EVENT_INFO_DEFINE(ename, types, labels, log_arg_fn) _EVENT_INFO_DEFINE(ename, WRAP(types), WRAP(labels), log_arg_fn)
+#define EVENT_INFO_DEFINE(ename, types, labels, log_arg_fn) _EVENT_INFO_DEFINE(ename, ENCODE(types), ENCODE(labels), log_arg_fn)
 
 /** @def EVENT_TYPE_DECLARE
  *

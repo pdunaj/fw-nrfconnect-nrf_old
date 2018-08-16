@@ -31,14 +31,14 @@ enum profiler_arg {
  */
 struct log_event_buf
 {
-	/** Pointer to end of payload */
+	/** Pointer to the end of payload */
 	u8_t *pPayload;
 	/** Array where payload is located before it is send */
 	u8_t pPayloadStart[CONFIG_PROFILER_CUSTOM_EVENT_BUF_LEN];
 };
 
 #ifdef CONFIG_PROFILER
-/** @brief Funciton to initialize system profiler module.
+/** @brief Function to initialize system profiler module.
  *
  * @return Zero if successful
  */
@@ -48,7 +48,7 @@ int profiler_init(void);
  */
 void profiler_term(void);
 
-/** @brief Funciton to register type of event in system profiler.
+/** @brief Function to register type of event in system profiler.
  * 
  * @param name Name of event type.
  * @param args Names of data values send with event.
@@ -59,37 +59,37 @@ void profiler_term(void);
  */
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt);
 
-/* @brief Function to initialize buffer for events' data.
+/** @brief Function to initialize buffer for events' data.
  * 
  * @param buf Pointer to data buffer.
-*/
+ */
 void profiler_log_start(struct log_event_buf *buf);
 
-/* @brief Function to encode and add data to buffer.
+/** @brief Function to encode and add data to buffer.
  * 
  * @warning Buffer has to be initialized with event_log_start function first.
  * @param data Data to add to buffer.
  * @param buf Pointer to data buffer.
-*/
+ */
 void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data);
 
-/* @brief Function to encode and add event's address in device's memory to buffer.
+/** @brief Function to encode and add event's address in device's memory to buffer.
  * 
  * Used for event identification
  * @warning Buffer has to be initialized with event_log_start function first.
  *
  * @param data Memory address to encode.
  * @param buf Pointer to data buffer.
-*/
+ */
 void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address);
 
-/* @brief Function to send data added to buffer to host.
+/** @brief Function to send data added to buffer to host.
  *
  * @note This funciton only sends data which is already stored in buffer. Data is added to buffer using event_log_add_32
  * and event_log_add_mem_address functions.
  * @param event_type_id ID of event in system profiler. It is given to event type while it is registered.
  * @param buf Pointer to data buffer.
-*/
+ */
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id);
 
 #else

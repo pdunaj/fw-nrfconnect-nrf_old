@@ -217,7 +217,7 @@ static void trace_event_execution(const struct event_header *eh, bool is_start)
 		profiler_log_start(&buf);
 		profiler_log_add_mem_address(&buf, eh);
 		/* Event execution end in event manager has next id after all the events adn event execution start */
-		profiler_log_send(&buf, profiler_id_table[__stop_event_types - __start_event_types + (is_start ? 1 : 2 )]);
+		profiler_log_send(&buf, profiler_id_table[__stop_event_types - __start_event_types + (is_start ? 0 : 1 )]);
 	}
 }
 
