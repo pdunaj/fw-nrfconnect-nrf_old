@@ -145,7 +145,7 @@ extern "C" {
 
 #define _ARG_TYPES_DEFINE(...) \
 	const static enum profiler_arg log_arg_types[] __used = \
-	 {__VA_ARGS__};
+	{__VA_ARGS__};
 
 #endif	
 

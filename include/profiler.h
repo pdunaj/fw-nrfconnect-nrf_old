@@ -7,6 +7,26 @@
 #ifndef _SYSTEM_PROFILER_H_
 #define _SYSTEM_PROFILER_H_
 
+/**
+ * @brief Profiler
+ * @defgroup profiler Profiler
+ *
+ * Profiler module provides interface to log custom data while system is running.
+ *
+ * Before sending information about event occurence, corresponding event type has 
+ * to be registered. Event receives unique ID after it's registered - ID is used 
+ * when information about event occurence is sent. Data attached to event has to
+ * match data declared during event registration. 
+ *
+ * Profiler may use various implementations. Currently SEGGER SystemView
+ * protocol (desktop application from SEGGER may be used to visualize custom events)
+ * and custom (Nordic) protocol are implemented (custom Python application is used 
+ * for visualization purposes).
+ *
+ * @{
+ */
+
+
 #include <zephyr.h>
 #include <stdio.h>
 #include <systemview/SEGGER_SYSVIEW.h>
@@ -103,4 +123,9 @@ void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id);
 #define profiler_log_send(b, event_type_id)
 
 #endif
+
+/**
+ * @}
+ */
+
 #endif /* _SYSTEM_PROFILER_H_ */

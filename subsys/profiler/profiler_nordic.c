@@ -12,6 +12,7 @@
 #include <profiler.h>
 
 
+
 enum nordic_command
 {
 	NORDIC_COMMAND_START = 1,
@@ -111,18 +112,21 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 {
 	u8_t pos = 0;
 	pos += snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);
-
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
+	
 	u8_t t;
 	for(t = 0; t < arg_cnt; t++) {
-		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", arg_types_encodings[arg_types[t]]);
+		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
+				 ",%s", arg_types_encodings[arg_types[t]]);
+		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
 	}
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);	
 
 	for(t = 0; t < arg_cnt; t++) {
-		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
+		pos += snprintf(descr[num_events] + pos,
+				 CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
+		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);	
 	}
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);
+	
 	__DMB();	
 	num_events++;
 	return num_events - 1;
@@ -151,6 +155,7 @@ void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 	if (sending_events) {
 		u8_t type_id = event_type_id & 255;
 		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, &type_id, 1);
-		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, buf->pPayloadStart, buf->pPayload - buf->pPayloadStart);
+		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
+				buf->pPayloadStart, buf->pPayload - buf->pPayloadStart);
 	}
 }

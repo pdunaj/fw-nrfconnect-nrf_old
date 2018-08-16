@@ -66,12 +66,14 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 	u8_t event_number = events.NumEvents;
 	u8_t pos = 0;
 	pos += snprintf(descr[event_number], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%d %s", event_number, name);
-
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
+	
 	for(size_t i = 0; i < arg_cnt; i++) {
-		pos += snprintf(descr[event_number] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, " %s=%s", args[i], arg_types_encodings[arg_types[i]]);
+		pos += snprintf(descr[event_number] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
+				" %s=%s", args[i], arg_types_encodings[arg_types[i]]);
+		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
 	}
 
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS);
 	events.NumEvents ++;
 	return events.EventOffset + event_number;
 }
