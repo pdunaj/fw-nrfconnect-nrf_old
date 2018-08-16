@@ -227,7 +227,7 @@ int event_manager_init(void)
 			static struct {} temp __used __attribute__((__section__("profiler_ids"))) = {};
 	}
 
-	profiler_id_table = __start_profiler_ids;
+	profiler_id_table = k_malloc(30*sizeof(u16_t)); //__start_profiler_ids;
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		if (profiler_init()) {

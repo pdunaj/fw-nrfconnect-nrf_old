@@ -12,6 +12,7 @@
 #include <profiler.h>
 
 
+K_SEM_DEFINE(profiler_sem, 1, 1);
 
 enum nordic_command
 {
@@ -75,6 +76,7 @@ static void profiler_nordic_thread(void)
 		}
 		k_sleep(500);
 	}
+	k_sem_take(&profiler_sem, K_FOREVER);
 }
 
 int profiler_init(void)
@@ -104,8 +106,12 @@ void profiler_term(void)
 {
 	sending_events = false;
 	protocol_running = false;
+	k_sem_give(&profiler_sem);
 	k_wakeup(protocol_thread_id);
-	k_yield();
+	while(!k_sem_count_get(&profiler_sem))
+	{
+		k_sleep(2);
+	}
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
