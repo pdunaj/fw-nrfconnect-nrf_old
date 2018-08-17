@@ -23,4 +23,4 @@ static int log_args(struct log_event_buf *buf, const struct event_header *eh)
 }
 
 EVENT_INFO_DEFINE(motion_event, ENCODE(PROFILER_ARG_S32, PROFILER_ARG_S32), ENCODE("dx", "dy"), log_args);
-EVENT_TYPE_DEFINE(motion_event, print_event, &ev_info);
+EVENT_TYPE_DEFINE(motion_event, print_event, &motion_event_info);

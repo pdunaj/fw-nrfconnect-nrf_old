@@ -12,12 +12,15 @@
 static void event_processor_fn(struct k_work *work);
 static void trace_event_execution(const struct event_header *eh, bool is_start);
 
+#ifndef CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT
+	#define CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT 0
+#endif
+
+static u16_t profiler_event_ids[CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT];
+
 K_WORK_DEFINE(event_processor, event_processor_fn);
 
 static sys_dlist_t eventq = SYS_DLIST_STATIC_INIT(&eventq);
-
-extern u16_t __start_profiler_ids[];
-extern u16_t __stop_profiler_ids[];
 
 static void event_processor_fn(struct k_work *work)
 {
@@ -107,15 +110,15 @@ void _event_submit(struct event_header *eh)
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		const struct event_type *et = eh->type_id;
-		if(et->ev_info && et->ev_info->log_args) {		
+		if(et->ev_info && et->ev_info->log_arg_fn) {		
 			struct log_event_buf buf;
 			ARG_UNUSED(buf);
 			profiler_log_start(&buf);
 			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 				profiler_log_add_mem_address(&buf, eh);
 			}
-			et->ev_info->log_args(&buf, eh);
-			profiler_log_send(&buf, __start_profiler_ids[et - __start_event_types]);
+			et->ev_info->log_arg_fn(&buf, eh);
+			profiler_log_send(&buf, profiler_event_ids[et - __start_event_types]);
 		}			
 	}
 	k_work_submit(&event_processor);
@@ -171,10 +174,6 @@ static void event_manager_show_subscribers(void)
 
 static void register_predefined_events()
 {
-	/** allocating space for predefined events ids */
-	static u16_t predefined_events1 __used __attribute__((__section__("profiler_ids")));
-	static u16_t predefined_events2 __used __attribute__((__section__("profiler_ids")));
-
 	const enum profiler_arg types[] = {PROFILER_ARG_U32};
 	const char *labels[] = {"mem_address"};
 	ARG_UNUSED(types);
@@ -182,11 +181,11 @@ static void register_predefined_events()
 	u16_t profiler_event_id;
 	/** event execution start event after last event */
 	profiler_event_id = profiler_register_event_type("event_processing_start", labels, types, 1);
-	__start_profiler_ids[__stop_event_types - __start_event_types] = profiler_event_id;
+	profiler_event_ids[__stop_event_types - __start_event_types] = profiler_event_id;
 		
 	/** event execution end event */
 	profiler_event_id = profiler_register_event_type("event_processing_end", labels, types, 1);
-	__start_profiler_ids[__stop_event_types - __start_event_types + 1] = profiler_event_id;
+	profiler_event_ids[__stop_event_types - __start_event_types + 1] = profiler_event_id;
 }
 
 static void register_events()
@@ -197,9 +196,9 @@ static void register_events()
 		if (et->ev_info) {
 			u16_t profiler_event_id;
 			profiler_event_id = profiler_register_event_type(et->name, 
-				et->ev_info->log_args_labels, et->ev_info->log_args_types, 
-				et->ev_info->log_args_cnt);
-			__start_profiler_ids[et - __start_event_types] = profiler_event_id;
+				et->ev_info->log_arg_labels, et->ev_info->log_arg_types, 
+				et->ev_info->log_arg_cnt);
+			profiler_event_ids[et - __start_event_types] = profiler_event_id;
 		}
  	}
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
@@ -215,18 +214,12 @@ static void trace_event_execution(const struct event_header *eh, bool is_start)
 		profiler_log_start(&buf);
 		profiler_log_add_mem_address(&buf, eh);
 		/* Event execution end in event manager has next id after all the events adn event execution start */
-		profiler_log_send(&buf, __start_profiler_ids[__stop_event_types - __start_event_types + (is_start ? 0 : 1 )]);
+		profiler_log_send(&buf, profiler_event_ids[__stop_event_types - __start_event_types + (is_start ? 0 : 1 )]);
 	}
 }
 
 int event_manager_init(void)
 {
-	/* When profiler is disabled, creating empty structure for allocating zero size memory segment */
-	if (!IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED))
-	{
-		static struct {} temp __used __attribute__((__section__("profiler_ids"))) = {};
-	}
-
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		if (profiler_init()) {

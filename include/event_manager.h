@@ -129,16 +129,16 @@ struct event_subscriber {
  */
 struct event_info {
 	/** Function to log this event. */
-	int (*log_args)(struct log_event_buf *buf, const struct event_header *eh);
+	int (*log_arg_fn)(struct log_event_buf *buf, const struct event_header *eh);
 
 	/** Number of logged datafields. */
-	const u8_t log_args_cnt;
+	const u8_t log_arg_cnt;
 
 	/** Labels of logged datafields. */
-	const char **log_args_labels;
+	const char **log_arg_labels;
 	
 	/** Types of logged datafields. */
-	const enum profiler_arg *log_args_types;
+	const enum profiler_arg *log_arg_types;
 };
 
 
@@ -213,6 +213,7 @@ extern const struct event_type __stop_event_types[];
 	_EVENT_SUBSCRIBE(lname, ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL));			\
 	const struct {} _CONCAT(_CONCAT(__event_subscriber_, ename), final_sub_redefined) = {}
 
+
 /** @def ENCODE
  *
  * @brief Encode event data types or labels.
@@ -221,18 +222,20 @@ extern const struct event_type __stop_event_types[];
  */
 #define ENCODE(...) __VA_ARGS__
 
+
 /** @def EVENT_INFO_DEFINE
  *
  * @brief Declare event logging information.
  *
  * Macro provides declarations required for event to be logged by profiler.
  *
- * @param ename  Name of the event.
+ * @param ename Name of the event.
  * @param types Types of values to log.
  * @param labels Labels of values to log (represented as enum).
  * @param log_arg_fn Function used to log event data.
  */
-#define EVENT_INFO_DEFINE(ename, types, labels, log_arg_fn) _EVENT_INFO_DEFINE(ename, ENCODE(types), ENCODE(labels), log_arg_fn)
+#define EVENT_INFO_DEFINE(ename, types, labels, log_arg_func) _EVENT_INFO_DEFINE(ename, ENCODE(types), ENCODE(labels), log_arg_func)
+
 
 /** @def EVENT_TYPE_DECLARE
  *
