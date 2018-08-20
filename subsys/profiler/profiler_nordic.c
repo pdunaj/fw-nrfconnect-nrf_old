@@ -49,11 +49,15 @@ static struct k_thread profiler_nordic_stack_data;
 
 static void send_system_description(void)
 {
+	u16_t num_bytes_send;
 	for (size_t t = 0; t < num_events; t++) {
-		SEGGER_RTT_WriteString(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, descr[t]);
-		SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
+		num_bytes_send = SEGGER_RTT_WriteString(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, descr[t]);
+		__ASSERT_NO_MSG(num_bytes_send > 0);
+		num_bytes_send = SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
+		__ASSERT_NO_MSG(num_bytes_send > 0);
 	}
-	SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
+	num_bytes_send = SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
+	__ASSERT_NO_MSG(num_bytes_send > 0);
 }
 
 static void profiler_nordic_thread(void)
@@ -85,16 +89,16 @@ int profiler_init(void)
 	int ret;
 	ret = SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
 		"Nordic profiler data", buffer_data, CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE,
-	       	SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	__ASSERT_NO_MSG(ret>=0);
+	       	SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+	__ASSERT_NO_MSG(ret >= 0);
 	ret = SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, 
 		"Nordic profiler info", buffer_info, CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE,
-		SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	 __ASSERT_NO_MSG(ret>=0);  
+		SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+	 __ASSERT_NO_MSG(ret >= 0);  
 	ret = SEGGER_RTT_ConfigDownBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS,
 		"Nordic profiler command", buffer_commands, CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE,
-	       	SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	 __ASSERT_NO_MSG(ret>=0);
+	       	SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+	 __ASSERT_NO_MSG(ret >= 0);
 	protocol_thread_id =  k_thread_create(&profiler_nordic_stack_data, profiler_nordic_stack,
 			K_THREAD_STACK_SIZEOF(profiler_nordic_stack),
 			(k_thread_entry_t) profiler_nordic_thread,
@@ -140,7 +144,7 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 
 void profiler_log_start(struct log_event_buf *buf)
 {
-	buf->pPayload = buf->pPayloadStart;
+	buf->pPayload = buf->pPayloadStart + 1;
 	profiler_log_encode_u32(buf, k_cycle_get_32());
 }
 
@@ -160,8 +164,10 @@ void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 	__ASSERT_NO_MSG(event_type_id < 256);
 	if (sending_events) {
 		u8_t type_id = event_type_id & 255;
-		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, &type_id, 1);
-		SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
+		buf->pPayloadStart[0] = type_id;
+		u8_t num_bytes_send;
+		num_bytes_send = SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
 				buf->pPayloadStart, buf->pPayload - buf->pPayloadStart);
+		__ASSERT_NO_MSG(num_bytes_send > 0);
 	}
 }
