@@ -59,6 +59,9 @@ static void data_ready_handler(struct device *dev, struct sensor_trigger *trig)
 		event->wheel = max(min(wheel, SCHAR_MAX), SCHAR_MIN);
 
 		EVENT_SUBMIT(event);
+	} else {
+		SYS_LOG_ERR("no memory");
+		module_set_state(MODULE_STATE_ERROR);
 	}
 }
 
