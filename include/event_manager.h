@@ -66,6 +66,8 @@
 #include <misc/__assert.h>
 
 #include <event_manager_priv.h>
+#include <sysview_custom_event_logger.h>
+#include <sysview_kernel_event_logger.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,10 +101,10 @@ extern "C" {
  *          as the first field.
  */
 struct event_header {
-	sys_dlist_t node;                 /**< Linked list node used to chain events. */
+	sys_dlist_t node;    /**< Linked list node used to chain events. */
 
-	s64_t timestamp;                  /**< Timestamp indicating event creation time. */
-	const struct event_type *type_id; /**< Pointer to the event type object. */
+	const void *type_id; /**< Pointer to the event type object. */
+
 };
 
 
@@ -140,6 +142,12 @@ struct event_type {
 
 	/** Function to print this event. */
 	void (*print_event)(const struct event_header *eh);
+
+	/** Function to log this event */
+	void (*log_event)(const struct event_header *eh, uint16_t event_type_id);
+
+	/** Event description */
+	const char *description;
 };
 
 
@@ -215,7 +223,7 @@ extern const struct event_type __stop_event_types[];
  * @param ename     Name of the event.
  * @param print_fn  Function to stringify event of this type.
  */
-#define EVENT_TYPE_DEFINE(ename, print_fn) _EVENT_TYPE_DEFINE(ename, print_fn)
+#define EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc) _EVENT_TYPE_DEFINE(ename, print_fn, log_fn, desc)
 
 
 /** @def ASSERT_EVENT_ID
@@ -258,6 +266,14 @@ void _event_submit(struct event_header *eh);
  */
 int event_manager_init(void);
 
+u32_t inline get_event_id(const struct event_header *eh)
+{
+       #ifdef CONFIG_SRAM_BASE_ADDRESS
+                return (u32_t)(eh - CONFIG_SRAM_BASE_ADDRESS);
+        #else
+                return (u32_t)eh;
+        #endif
+}
 
 #ifdef __cplusplus
 }

@@ -15,4 +15,13 @@ static void print_event(const struct event_header *eh)
 			(event->pressed)?("pressed"):("released"));
 }
 
-EVENT_TYPE_DEFINE(button_event, print_event);
+static void log_event(const struct event_header *eh, uint16_t event_type_id)
+{
+	struct button_event *event = cast_button_event(eh);
+	SEGGER_SYSVIEW_RecordU32x3(event_type_id, get_event_id(eh), event->key_id, (event->pressed)?(1):(0));
+}
+
+static const char description[] = "button_event event_id=%u button_id=%u status=%u";
+
+
+EVENT_TYPE_DEFINE(button_event, print_event, log_event, description);
