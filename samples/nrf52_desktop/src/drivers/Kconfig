@@ -1,0 +1,80 @@
+#
+# Copyright (c) 2018 Nordic Semiconductor
+#
+# SPDX-License-Identifier: BSD-5-Clause-Nordic
+#
+
+menu "Drivers"
+
+menu "Board driver"
+
+config DESKTOP_SYS_LOG_BOARD_DRIVER_LEVEL
+	int "Board driver log level"
+	depends on SYS_LOG
+	default 2
+	range 0 4
+	help
+	  Sets log level for board driver.
+	  Levels are:
+	  - 0 OFF, do not write
+	  - 1 ERROR, only write SYS_LOG_ERR
+	  - 2 WARNING, write SYS_LOG_WRN in addition to previous level
+	  - 3 INFO, write SYS_LOG_INF in addition to previous levels
+	  - 4 DEBUG, write SYS_LOG_DBG in addition to previous levels
+endmenu
+
+
+menu "Keyboard driver"
+
+config DESKTOP_SYS_LOG_KEYBOARD_DRIVER_LEVEL
+	int "Keyboard driver log level"
+	depends on SYS_LOG
+	default 2
+	range 0 4
+	help
+	  Sets log level for keyboard driver.
+	  Levels are:
+	  - 0 OFF, do not write
+	  - 1 ERROR, only write SYS_LOG_ERR
+	  - 2 WARNING, write SYS_LOG_WRN in addition to previous level
+	  - 3 INFO, write SYS_LOG_INF in addition to previous levels
+	  - 4 DEBUG, write SYS_LOG_DBG in addition to previous levels
+endmenu
+
+
+menu "LIS3DH accelerometer driver"
+
+config DESKTOP_SYS_LOG_LIS3DH_DRIVER_LEVEL
+	int "LIS3DH driver log level"
+	depends on SYS_LOG
+	default 2
+	range 0 4
+	help
+	  Sets log level for LIS3DH driver.
+	  Levels are:
+	  - 0 OFF, do not write
+	  - 1 ERROR, only write SYS_LOG_ERR
+	  - 2 WARNING, write SYS_LOG_WRN in addition to previous level
+	  - 3 INFO, write SYS_LOG_INF in addition to previous levels
+	  - 4 DEBUG, write SYS_LOG_DBG in addition to previous levels
+endmenu
+
+
+menu "Mouse driver"
+
+config DESKTOP_SYS_LOG_MOUSE_DRIVER_LEVEL
+	int "Mouse driver log level"
+	depends on SYS_LOG
+	default 2
+	range 0 4
+	help
+	  Sets log level for mouse driver.
+	  Levels are:
+	  - 0 OFF, do not write
+	  - 1 ERROR, only write SYS_LOG_ERR
+	  - 2 WARNING, write SYS_LOG_WRN in addition to previous level
+	  - 3 INFO, write SYS_LOG_INF in addition to previous levels
+	  - 4 DEBUG, write SYS_LOG_DBG in addition to previous levels
+endmenu
+endmenu
+
