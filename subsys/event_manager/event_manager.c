@@ -7,6 +7,7 @@
 #include <zephyr.h>
 #include <misc/dlist.h>
 #include <misc/printk.h>
+#include <logging/sys_log.h>
 #include <event_manager.h>
 
 static void event_processor_fn(struct k_work *work);
@@ -59,7 +60,6 @@ static void event_processor_fn(struct k_work *work)
 			if (et->print_event) {
 				et->print_event(eh);
 			}
-
 			printk("\n");
 		}
 
@@ -109,9 +109,11 @@ void _event_submit(struct event_header *eh)
 	irq_unlock(flags);
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
+		
 		const struct event_type *et = eh->type_id;
-		if(et->ev_info && et->ev_info->log_arg_fn) {		
+		if (et->ev_info && et->ev_info->log_arg_fn) {		
 			struct log_event_buf buf;
+
 			ARG_UNUSED(buf);
 			profiler_log_start(&buf);
 			if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
@@ -172,14 +174,16 @@ static void event_manager_show_subscribers(void)
 	printk("\n");
 }
 
-static void register_predefined_events()
+static void register_execution_tracking_events()
 {
 	const enum profiler_arg types[] = {PROFILER_ARG_U32};
 	const char *labels[] = {"mem_address"};
+	u16_t profiler_event_id;
+
 	ARG_UNUSED(types);
 	ARG_UNUSED(labels);
-	u16_t profiler_event_id;
-	/** event execution start event after last event */
+
+	/* event execution start event after last event */
 	profiler_event_id = profiler_register_event_type("event_processing_start", labels, types, 1);
 	profiler_event_ids[__stop_event_types - __start_event_types] = profiler_event_id;
 		
@@ -202,7 +206,7 @@ static void register_events()
 		}
  	}
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
-		register_predefined_events();
+		register_execution_tracking_events();
 	}
 }
 
@@ -210,10 +214,11 @@ static void trace_event_execution(const struct event_header *eh, bool is_start)
 {
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION)) {
 		struct log_event_buf buf;
+
 		ARG_UNUSED(buf);
 		profiler_log_start(&buf);
 		profiler_log_add_mem_address(&buf, eh);
-		/* Event execution end in event manager has next id after all the events adn event execution start */
+		/* Event execution end in event manager has next id after all the events and event execution start */
 		profiler_log_send(&buf, profiler_event_ids[__stop_event_types - __start_event_types + (is_start ? 0 : 1 )]);
 	}
 }
@@ -223,7 +228,7 @@ int event_manager_init(void)
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
 		if (profiler_init()) {
-			printk("System profiler: initialization problem \n");
+			SYS_LOG_ERR("System profiler: initialization problem \n");
 			return -1;
 		}
 		register_events();

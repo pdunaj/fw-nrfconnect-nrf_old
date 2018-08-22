@@ -53,7 +53,7 @@ config DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
 
 config DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT
 	depends on DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
-	int "Maximum number of events in event manager"
+	int "Maximum number of events types in event manager"
 	default 64
 
 config DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION

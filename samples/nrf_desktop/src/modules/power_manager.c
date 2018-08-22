@@ -141,7 +141,6 @@ int _sys_soc_suspend(s32_t ticks)
 static void power_down(struct k_work *work)
 {
 	if (power_state == POWER_STATE_IDLE) {
-		profiler_term();
 		struct power_down_event *event = new_power_down_event();
 
 		if (event) {
@@ -174,7 +173,7 @@ static bool event_handler(const struct event_header *eh)
 
 	if (is_power_down_event(eh)) {
 		SYS_LOG_INF("power down the board");
-
+		profiler_term();
 		/* Port events are needed to leave system off state */
 		nrf_gpiote_clear_port_event();
 		nrf_gpiote_interrupt_enable(GPIOTE_INTENSET_PORT_Msk);

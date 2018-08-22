@@ -66,7 +66,7 @@ struct log_event_buf
 #ifdef CONFIG_PROFILER
 int profiler_init(void);
 #else
-inline int profiler_init(void) {return 0;}
+inline static int profiler_init(void) {return 0;}
 #endif
 
 
@@ -75,7 +75,7 @@ inline int profiler_init(void) {return 0;}
 #ifdef CONFIG_PROFILER
 void profiler_term(void);
 #else
-inline void profiler_term(void) {}
+inline static void profiler_term(void) {}
 #endif
 
 
@@ -91,7 +91,8 @@ inline void profiler_term(void) {}
 #ifdef CONFIG_PROFILER
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt);
 #else
-inline u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt) {return 0;}
+inline static u16_t profiler_register_event_type(const char *name, const char **args, 
+			const enum profiler_arg *arg_types, u8_t arg_cnt) {return 0;}
 #endif
 
 
@@ -102,7 +103,7 @@ inline u16_t profiler_register_event_type(const char *name, const char **args, c
 #ifdef CONFIG_PROFILER
 void profiler_log_start(struct log_event_buf *buf);
 #else
-inline void profiler_log_start(struct log_event_buf *buf) {}
+inline static void profiler_log_start(struct log_event_buf *buf) {}
 #endif
 
 
@@ -115,7 +116,7 @@ inline void profiler_log_start(struct log_event_buf *buf) {}
 #ifdef CONFIG_PROFILER
 void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data);
 #else
-inline void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data) {}
+inline static void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data) {}
 #endif
 
 
@@ -130,7 +131,7 @@ inline void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data) {}
 #ifdef CONFIG_PROFILER
 void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address);
 #else
-inline void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address) {}
+inline static void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address) {}
 #endif
 
 
@@ -144,7 +145,7 @@ inline void profiler_log_add_mem_address(struct log_event_buf *buf, const void *
 #ifdef CONFIG_PROFILER
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id);
 #else
-inline void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id) {}
+inline static void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id) {}
 #endif
 
 
