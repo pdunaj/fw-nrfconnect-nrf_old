@@ -81,20 +81,20 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 void profiler_log_start(struct log_event_buf *buf)
 {
 	/* protocol implementation in SysView demands incrementing pointer by 4 on start */
-	buf->pPayload = buf->pPayloadStart + 4; 
+	buf->payload = buf->payload_start + 4; 
 }
 
 void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data)
 {
-	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, data);
+	buf->payload = SEGGER_SYSVIEW_EncodeU32(buf->payload, data);
 }
 
 void profiler_log_add_mem_address(struct log_event_buf *buf, const void *event_mem_addres)
 {
-	buf->pPayload = SEGGER_SYSVIEW_EncodeU32(buf->pPayload, shorten_mem_address(event_mem_addres));
+	buf->payload = SEGGER_SYSVIEW_EncodeU32(buf->payload, shorten_mem_address(event_mem_addres));
 }
 
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
-	SEGGER_SYSVIEW_SendPacket(buf->pPayloadStart, buf->pPayload, event_type_id);
+	SEGGER_SYSVIEW_SendPacket(buf->payload_start, buf->payload, event_type_id);
 }

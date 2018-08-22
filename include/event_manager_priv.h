@@ -131,21 +131,21 @@ extern "C" {
 
 #define _ARG_LABELS_DEFINE(...) \
 	const static char *log_arg_labels[] __used = \
-	{"mem_address", __VA_ARGS__};
+	{"mem_address", __VA_ARGS__}
 
 #define _ARG_TYPES_DEFINE(...) \
 	const static enum profiler_arg log_arg_types[] __used = \
-	 {PROFILER_ARG_U32, __VA_ARGS__};
+	 {PROFILER_ARG_U32, __VA_ARGS__}
 
 #else	
 
 #define _ARG_LABELS_DEFINE(...) \
 	const static char *log_arg_labels[] __used = \
-	{__VA_ARGS__};
+	{__VA_ARGS__}
 
 #define _ARG_TYPES_DEFINE(...) \
 	const static enum profiler_arg log_arg_types[] __used = \
-	{__VA_ARGS__};
+	{__VA_ARGS__}
 
 #endif	
 
@@ -156,9 +156,9 @@ extern "C" {
 		
 
 #define _EVENT_INFO_DEFINE(ename, types, labels, log_arg_func)			\
-	_ARG_LABELS_DEFINE(labels)					 	\
-	_ARG_TYPES_DEFINE(types)						\
-        const static struct event_info _CONCAT(ename, _info) __used       \
+	_ARG_LABELS_DEFINE(labels);					 	\
+	_ARG_TYPES_DEFINE(types);						\
+        const static struct event_info _CONCAT(ename, _info) __used       	\
         __attribute__((__section__("event_infos"))) = {                         \
 		                .log_arg_fn      = log_arg_func,    	        \
 		                .log_arg_cnt     = ARRAY_SIZE(log_arg_labels), 	\

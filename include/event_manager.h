@@ -11,6 +11,7 @@
 #ifndef _EVENT_MANAGER_H_
 #define _EVENT_MANAGER_H_
 
+
 /**
  * @brief Event Manager
  * @defgroup event_manager Event Manager
@@ -105,6 +106,7 @@ struct event_header {
 	const void *type_id; /**< Pointer to the event type object. */
 
 };
+
 
 /** @brief Event listener structure.
  *
@@ -294,11 +296,13 @@ void _event_submit(struct event_header *eh);
  */
 #define EVENT_SUBMIT(event) _event_submit(&event->header)
 
+
 /** Initialize the event manager.
  *
  * @return Zero if successful.
  */
 int event_manager_init(void);
+
 
 #ifdef __cplusplus
 }

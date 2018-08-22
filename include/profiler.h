@@ -20,8 +20,7 @@
  *
  * Profiler may use various implementations. Currently SEGGER SystemView
  * protocol (desktop application from SEGGER may be used to visualize custom events)
- * and custom (Nordic) protocol are implemented (custom Python application is used 
- * for visualization purposes).
+ * and custom (Nordic) protocol are implemented.
  *
  * @{
  */
@@ -31,6 +30,7 @@
 #include <stdio.h>
 #include <systemview/SEGGER_SYSVIEW.h>
 #include <rtt/SEGGER_RTT.h>
+
 
 /** @brief Data types for logging in system profiler.
  */
@@ -45,6 +45,7 @@ enum profiler_arg {
 	PROFILER_ARG_TIMESTAMP
 };
 
+
 /** @brief Buffer for event's data.
  *
  * Buffer required for data, which is send with event. 
@@ -52,21 +53,31 @@ enum profiler_arg {
 struct log_event_buf
 {
 	/** Pointer to the end of payload */
-	u8_t *pPayload;
+	u8_t *payload;
 	/** Array where payload is located before it is send */
-	u8_t pPayloadStart[CONFIG_PROFILER_CUSTOM_EVENT_BUF_LEN];
+	u8_t payload_start[CONFIG_PROFILER_CUSTOM_EVENT_BUF_LEN];
 };
 
-#ifdef CONFIG_PROFILER
+
 /** @brief Function to initialize system profiler module.
  *
  * @return Zero if successful
  */
+#ifdef CONFIG_PROFILER
 int profiler_init(void);
+#else
+inline int profiler_init(void) {return 0;}
+#endif
+
 
 /** @brief Funciton to terminate profiler.
  */
+#ifdef CONFIG_PROFILER
 void profiler_term(void);
+#else
+inline void profiler_term(void) {}
+#endif
+
 
 /** @brief Function to register type of event in system profiler.
  * 
@@ -77,13 +88,23 @@ void profiler_term(void);
  * 
  * @return ID given to event type in system profiler.
  */
+#ifdef CONFIG_PROFILER
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt);
+#else
+inline u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt) {return 0;}
+#endif
+
 
 /** @brief Function to initialize buffer for events' data.
  * 
  * @param buf Pointer to data buffer.
  */
+#ifdef CONFIG_PROFILER
 void profiler_log_start(struct log_event_buf *buf);
+#else
+inline void profiler_log_start(struct log_event_buf *buf) {}
+#endif
+
 
 /** @brief Function to encode and add data to buffer.
  * 
@@ -91,7 +112,12 @@ void profiler_log_start(struct log_event_buf *buf);
  * @param data Data to add to buffer.
  * @param buf Pointer to data buffer.
  */
+#ifdef CONFIG_PROFILER
 void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data);
+#else
+inline void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data) {}
+#endif
+
 
 /** @brief Function to encode and add event's address in device's memory to buffer.
  * 
@@ -101,7 +127,12 @@ void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data);
  * @param data Memory address to encode.
  * @param buf Pointer to data buffer.
  */
+#ifdef CONFIG_PROFILER
 void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address);
+#else
+inline void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_address) {}
+#endif
+
 
 /** @brief Function to send data added to buffer to host.
  *
@@ -110,19 +141,12 @@ void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_add
  * @param event_type_id ID of event in system profiler. It is given to event type while it is registered.
  * @param buf Pointer to data buffer.
  */
+#ifdef CONFIG_PROFILER
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id);
-
 #else
-#define profiler_init() 0
-#define profiler_term()
-#define profiler_sleep()
-#define profiler_register_event_type(name, args, arg_types, arg_cnt) 0;
-#define profiler_log_start(b)
-#define profiler_log_encode_u32(b, data)
-#define profiler_log_add_mem_address(b, mem_address)
-#define profiler_log_send(b, event_type_id)
-
+inline void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id) {}
 #endif
+
 
 /**
  * @}
