@@ -13,7 +13,10 @@
 #include <profiler.h>
 
 
-static K_SEM_DEFINE(profiler_sem, 1, 1);
+static K_SEM_DEFINE(profiler_sem, 0, 1);
+
+static K_SEM_DEFINE(protocol_running_sem, 0, 1);
+static K_SEM_DEFINE(sending_events_sem, 0, 1);
 
 enum nordic_command
 {
@@ -33,19 +36,15 @@ static char *arg_types_encodings[] = {	"u8",  /* u8_t */
 					"t"    /* time */
 					};
 
+static u8_t num_events;
+
 static u8_t buffer_data[CONFIG_PROFILER_NORDIC_DATA_BUFFER_SIZE];
 static u8_t buffer_info[CONFIG_PROFILER_NORDIC_INFO_BUFFER_SIZE];
 static u8_t buffer_commands[CONFIG_PROFILER_NORDIC_COMMAND_BUFFER_SIZE];
 
 static k_tid_t protocol_thread_id;
 
-static u8_t num_events;
-
-static bool protocol_running;
-volatile bool sending_events = CONFIG_PROFILER_NORDIC_START_LOGGING_ON_SYSTEM_START;
-
-static K_THREAD_STACK_DEFINE(profiler_nordic_stack, 1024);
-
+static K_THREAD_STACK_DEFINE(profiler_nordic_stack, 128);
 static struct k_thread profiler_nordic_thread;
 
 static void send_system_description(void)
@@ -63,18 +62,23 @@ static void send_system_description(void)
 
 static void profiler_nordic_thread_fn(void)
 {
-	while (protocol_running) {
+	while (k_sem_count_get(&protocol_running_sem)) {
 		u8_t read_data;
 		enum nordic_command command;
-
 		if (SEGGER_RTT_Read(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, &read_data, sizeof(read_data))) {
 			command = (enum nordic_command)read_data;
+			int ret;			
 			switch (command) {
 			case NORDIC_COMMAND_START:
-				sending_events = true;
+				if (!k_sem_count_get(&sending_events_sem)) {
+					k_sem_give(&sending_events_sem);
+				}
 				break;			
 			case NORDIC_COMMAND_STOP:
-				sending_events = false;
+				if (k_sem_count_get(&sending_events_sem)) {
+					ret = k_sem_take(&sending_events_sem, K_NO_WAIT);
+					__ASSERT_NO_MSG(ret == 0);				
+				}				
 				break;
 			case NORDIC_COMMAND_INFO:
 				send_system_description();
@@ -89,7 +93,12 @@ static void profiler_nordic_thread_fn(void)
 
 int profiler_init(void)
 {
-	protocol_running = true;
+
+	k_sem_give(&protocol_running_sem);
+	if (IS_ENABLED(CONFIG_PROFILER_NORDIC_START_LOGGING_ON_SYSTEM_START)) {
+		k_sem_give(&sending_events_sem);
+	}
+
 	int ret;
 
 	ret = SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
@@ -116,28 +125,32 @@ int profiler_init(void)
 
 void profiler_term(void)
 {
-	sending_events = false;
-	protocol_running = false;
+	k_sem_reset(&sending_events_sem);
+	k_sem_reset(&protocol_running_sem);
 	k_wakeup(protocol_thread_id);
 	k_sem_take(&profiler_sem, K_FOREVER);
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
-	u8_t pos = snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
+	u8_t temp, pos = 0;
+	temp = snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
+	pos += temp;
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
 	
 	u8_t t;
 	for (t = 0; t < arg_cnt; t++) {
-		pos += snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
+		temp = snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
 				 ",%s", arg_types_encodings[arg_types[t]]);
-		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
+		pos += temp;
+		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
 	}
 
 	for (t = 0; t < arg_cnt; t++) {
-		pos += snprintf(descr[num_events] + pos,
+		temp = snprintf(descr[num_events] + pos,
 				 CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
-		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);	
+		pos += temp;
+		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);	
 	}
 	
 	__DMB();	
@@ -166,7 +179,7 @@ void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_add
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
 	__ASSERT_NO_MSG(event_type_id <= UCHAR_MAX);
-	if (sending_events) {
+	if (k_sem_count_get(&sending_events_sem)) {
 		u8_t type_id = event_type_id & UCHAR_MAX;
 		buf->payload_start[0] = type_id;
 		u8_t num_bytes_send = SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 

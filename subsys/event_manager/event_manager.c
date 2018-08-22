@@ -109,7 +109,6 @@ void _event_submit(struct event_header *eh)
 	irq_unlock(flags);
 
 	if (IS_ENABLED(CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED)) {	
-		
 		const struct event_type *et = eh->type_id;
 		if (et->ev_info && et->ev_info->log_arg_fn) {		
 			struct log_event_buf buf;

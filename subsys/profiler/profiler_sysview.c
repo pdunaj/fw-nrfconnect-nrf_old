@@ -7,14 +7,14 @@
 #include <profiler.h>
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
-static char *arg_types_encodings[] = {	"%u",  //u8_t
-				      	"%d",  //s8_t
-					"%u",  //u16_t
-					"%d",  //s16_t
-					"%u",  //u32_t
-					"%d",  //s32_t
-					"%s",  //string
-					 "%D"  //time
+static char *arg_types_encodings[] = {	"%u",  /* u8_t */
+				      	"%d",  /* s8_t */
+					"%u",  /* u16_t */
+					"%d",  /* s16_t */
+					"%u",  /* u32_t */
+					"%d",  /* s32_t */
+					"%s",  /* string */
+					 "%D"  /* time */
 					};
 
 
@@ -64,14 +64,16 @@ void profiler_term(void)
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
 	u8_t event_number = events.NumEvents;
-	u8_t pos = 0;
-	pos += snprintf(descr[event_number], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%d %s", event_number, name);
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
+	u8_t temp, pos = 0;
+	temp = snprintf(descr[event_number], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%d %s", event_number, name);
+	pos += temp;
+	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
 	
 	for(size_t i = 0; i < arg_cnt; i++) {
-		pos += snprintf(descr[event_number] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
+		temp = snprintf(descr[event_number] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
 				" %s=%s", args[i], arg_types_encodings[arg_types[i]]);
-		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && pos >0);
+		pos += temp;
+		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
 	}
 
 	events.NumEvents ++;
@@ -80,8 +82,8 @@ u16_t profiler_register_event_type(const char *name, const char **args, const en
 
 void profiler_log_start(struct log_event_buf *buf)
 {
-	/* protocol implementation in SysView demands incrementing pointer by 4 on start */
-	buf->payload = buf->payload_start + 4; 
+	/* protocol implementation in SysView demands incrementing pointer by sizeof(u32_t) on start */
+	buf->payload = buf->payload_start + sizeof(u32_t); 
 }
 
 void profiler_log_encode_u32(struct log_event_buf *buf, u32_t data)
