@@ -14,9 +14,8 @@
 
 
 static K_SEM_DEFINE(profiler_sem, 0, 1);
-
-static K_SEM_DEFINE(protocol_running_sem, 0, 1);
-static K_SEM_DEFINE(sending_events_sem, 0, 1);
+static bool protocol_running;
+static bool sending_events;
 
 enum nordic_command
 {
@@ -49,8 +48,13 @@ static struct k_thread profiler_nordic_thread;
 
 static void send_system_description(void)
 {
-	u16_t num_bytes_send;
-	for (size_t t = 0; t < num_events; t++) {
+	size_t num_bytes_send;
+
+	/* Memory barrier to make sure that data is visible before being accessed */
+	u8_t ne = num_events;
+	__DMB();
+
+	for (size_t t = 0; t < ne; t++) {
 		num_bytes_send = SEGGER_RTT_WriteString(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, descr[t]);
 		__ASSERT_NO_MSG(num_bytes_send > 0);
 		num_bytes_send = SEGGER_RTT_PutChar(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_INFO, '\n');
@@ -62,29 +66,22 @@ static void send_system_description(void)
 
 static void profiler_nordic_thread_fn(void)
 {
-	while (k_sem_count_get(&protocol_running_sem)) {
+	while (protocol_running) {
 		u8_t read_data;
 		enum nordic_command command;
 		if (SEGGER_RTT_Read(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_COMMANDS, &read_data, sizeof(read_data))) {
 			command = (enum nordic_command)read_data;
-			int ret;			
 			switch (command) {
 			case NORDIC_COMMAND_START:
-				if (!k_sem_count_get(&sending_events_sem)) {
-					k_sem_give(&sending_events_sem);
-				}
+				sending_events = true;
 				break;			
 			case NORDIC_COMMAND_STOP:
-				if (k_sem_count_get(&sending_events_sem)) {
-					ret = k_sem_take(&sending_events_sem, K_NO_WAIT);
-					__ASSERT_NO_MSG(ret == 0);				
-				}				
+				sending_events = false;				
 				break;
 			case NORDIC_COMMAND_INFO:
 				send_system_description();
 				break;			
 			}
-
 		}
 		k_sleep(500);
 	}
@@ -93,12 +90,9 @@ static void profiler_nordic_thread_fn(void)
 
 int profiler_init(void)
 {
-
-	k_sem_give(&protocol_running_sem);
 	if (IS_ENABLED(CONFIG_PROFILER_NORDIC_START_LOGGING_ON_SYSTEM_START)) {
-		k_sem_give(&sending_events_sem);
+		protocol_running = true;
 	}
-
 	int ret;
 
 	ret = SEGGER_RTT_ConfigUpBuffer(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 
@@ -125,37 +119,40 @@ int profiler_init(void)
 
 void profiler_term(void)
 {
-	k_sem_reset(&sending_events_sem);
-	k_sem_reset(&protocol_running_sem);
+	sending_events = false;
+	protocol_running = false;
 	k_wakeup(protocol_thread_id);
 	k_sem_take(&profiler_sem, K_FOREVER);
 }
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
-	u8_t temp, pos = 0;
-	temp = snprintf(descr[num_events], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, num_events);
-	pos += temp;
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
+	/* Lock to make sure that this function can be called from multiple threads */
+	k_sched_lock();
+	u8_t ne = num_events;
+	size_t temp = snprintf(descr[ne], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%s,%d", name, ne);
+	size_t pos = temp;
+	__ASSERT_NO_MSG((pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS) && (temp > 0));
 	
-	u8_t t;
-	for (t = 0; t < arg_cnt; t++) {
-		temp = snprintf(descr[num_events] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
+	for (size_t t = 0; t < arg_cnt; t++) {
+		temp = snprintf(descr[ne] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
 				 ",%s", arg_types_encodings[arg_types[t]]);
 		pos += temp;
-		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
+		__ASSERT_NO_MSG((pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS) && (temp > 0));
 	}
 
-	for (t = 0; t < arg_cnt; t++) {
-		temp = snprintf(descr[num_events] + pos,
+	for (size_t t = 0; t < arg_cnt; t++) {
+		temp = snprintf(descr[ne] + pos,
 				 CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos, ",%s", args[t]);
 		pos += temp;
-		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);	
+		__ASSERT_NO_MSG((pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS) && (temp > 0));	
 	}
-	
+	/* Memory barrier to make sure that data is visible before being accessed */
 	__DMB();	
 	num_events++;
-	return num_events - 1;
+	k_sched_unlock();
+
+	return ne;
 }
 
 void profiler_log_start(struct log_event_buf *buf)
@@ -179,7 +176,7 @@ void profiler_log_add_mem_address(struct log_event_buf *buf, const void *mem_add
 void profiler_log_send(struct log_event_buf *buf, u16_t event_type_id)
 {
 	__ASSERT_NO_MSG(event_type_id <= UCHAR_MAX);
-	if (k_sem_count_get(&sending_events_sem)) {
+	if (sending_events) {
 		u8_t type_id = event_type_id & UCHAR_MAX;
 		buf->payload_start[0] = type_id;
 		u8_t num_bytes_send = SEGGER_RTT_Write(CONFIG_PROFILER_NORDIC_RTT_CHANNEL_DATA, 

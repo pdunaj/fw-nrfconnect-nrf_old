@@ -5,6 +5,7 @@
  */
 
 #include <profiler.h>
+#include <kernel_structs.h>
 
 static char descr[CONFIG_MAX_NUMBER_OF_CUSTOM_EVENTS][CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS];
 static char *arg_types_encodings[] = {	"%u",  /* u8_t */
@@ -29,7 +30,11 @@ struct SEGGER_SYSVIEW_MODULE_STRUCT events = {
 
 static void event_module_description(void) 
 {
-	for (size_t i = 0; i < events.NumEvents; i++) {
+	/* Memory barrier to make sure that data is visible before being accessed */
+	u32_t ne = events.NumEvents;
+	__DMB();
+
+	for (size_t i = 0; i < ne; i++) {
 		SEGGER_SYSVIEW_RecordModuleDescription(&events, descr[i]);
 	}
 }
@@ -63,21 +68,26 @@ void profiler_term(void)
 
 u16_t profiler_register_event_type(const char *name, const char **args, const enum profiler_arg *arg_types, u8_t arg_cnt)
 {
-	u8_t event_number = events.NumEvents;
-	u8_t temp, pos = 0;
-	temp = snprintf(descr[event_number], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%d %s", event_number, name);
-	pos += temp;
-	__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
+	/* Lock to make sure that this function can be called from multiple threads */
+	k_sched_lock();
+	u32_t ne = events.NumEvents;
+
+	size_t temp = snprintf(descr[ne], CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS, "%u %s", ne, name);
+	size_t pos = temp;
+	__ASSERT_NO_MSG((pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS) && (temp > 0));
 	
-	for(size_t i = 0; i < arg_cnt; i++) {
-		temp = snprintf(descr[event_number] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
+	for (size_t i = 0; i < arg_cnt; i++) {
+		temp = snprintf(descr[ne] + pos, CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS - pos,
 				" %s=%s", args[i], arg_types_encodings[arg_types[i]]);
 		pos += temp;
-		__ASSERT_NO_MSG(pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS && temp > 0);
+		__ASSERT_NO_MSG((pos < CONFIG_MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS) && (temp > 0));
 	}
-
-	events.NumEvents ++;
-	return events.EventOffset + event_number;
+	
+	/* Memory barrier to make sure that data is visible before being accessed */
+	__DMB();	
+	events.NumEvents++;
+	k_sched_unlock();
+	return events.EventOffset + ne;
 }
 
 void profiler_log_start(struct log_event_buf *buf)

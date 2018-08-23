@@ -81,6 +81,7 @@ inline static void profiler_term(void) {}
 
 /** @brief Function to register type of event in system profiler.
  * 
+ * @warning Function is thread safe, but not safe to use in interrupts.
  * @param name Name of event type.
  * @param args Names of data values send with event.
  * @param arg_types Types of data values send with event.

@@ -13,11 +13,13 @@
 static void event_processor_fn(struct k_work *work);
 static void trace_event_execution(const struct event_header *eh, bool is_start);
 
-#ifndef CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT
-	#define CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT 0
+#if CONFIG_DESKTOP_EVENT_MANAGER_PROFILER_ENABLED
+#define IDS_COUNT CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT
+#else
+#define IDS_COUNT 0
 #endif
 
-static u16_t profiler_event_ids[CONFIG_DESKTOP_EVENT_MANAGER_MAX_EVENT_CNT];
+static u16_t profiler_event_ids[IDS_COUNT];
 
 K_WORK_DEFINE(event_processor, event_processor_fn);
 
