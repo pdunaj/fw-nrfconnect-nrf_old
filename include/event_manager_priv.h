@@ -130,21 +130,17 @@ extern "C" {
 #ifdef CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
 
 #define _ARG_LABELS_DEFINE(...) \
-	const static char *log_arg_labels[] __used = \
 	{"mem_address", __VA_ARGS__}
 
 #define _ARG_TYPES_DEFINE(...) \
-	const static enum profiler_arg log_arg_types[] __used = \
 	 {PROFILER_ARG_U32, __VA_ARGS__}
 
 #else	
 
 #define _ARG_LABELS_DEFINE(...) \
-	const static char *log_arg_labels[] __used = \
 	{__VA_ARGS__}
 
 #define _ARG_TYPES_DEFINE(...) \
-	const static enum profiler_arg log_arg_types[] __used = \
 	{__VA_ARGS__}
 
 #endif	
@@ -155,16 +151,16 @@ extern "C" {
 	__attribute__((__section__("profiler_ids")));		\
 		
 
-#define _EVENT_INFO_DEFINE(ename, types, labels, log_arg_func)			\
-	_ARG_LABELS_DEFINE(labels);					 	\
-	_ARG_TYPES_DEFINE(types);						\
-        const static struct event_info _CONCAT(ename, _info) __used       	\
-        __attribute__((__section__("event_infos"))) = {                         \
-		                .log_arg_fn      = log_arg_func,    	        \
-		                .log_arg_cnt     = ARRAY_SIZE(log_arg_labels), 	\
-	       			.log_arg_labels  = log_arg_labels,     		\
-				.log_arg_types	 = log_arg_types                \
-		        }                                                                                                           
+#define _EVENT_INFO_DEFINE(ename, types, labels, log_arg_func)							\
+	const static char * _CONCAT(ename, _log_arg_labels[]) __used = _ARG_LABELS_DEFINE(labels);		\
+	const static enum profiler_arg _CONCAT(ename, _log_arg_types[]) __used = _ARG_TYPES_DEFINE(types);	\
+        const static struct event_info _CONCAT(ename, _info) __used       					\
+        __attribute__((__section__("event_infos"))) = {                         				\
+		                .log_arg_fn      = log_arg_func,    	       	 				\
+		                .log_arg_cnt     = ARRAY_SIZE(_CONCAT(ename, _log_arg_labels)), 		\
+	       			.log_arg_labels  = _CONCAT(ename, _log_arg_labels), 				\
+				.log_arg_types	 = _CONCAT(ename, _log_arg_types)              			\
+		        }                                                                          	                                 
           
 
 #define _EVENT_LISTENER(lname, notification_fn)					\
