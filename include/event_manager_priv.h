@@ -95,7 +95,6 @@ extern "C" {
 			return NULL;					\
 		}							\
 		event->header.type_id = _EVENT_ID(ename);		\
-		event->header.timestamp = k_uptime_get();		\
 		return event;						\
 	}
 
@@ -125,7 +124,48 @@ extern "C" {
 		return (eh->type_id == _EVENT_ID(ename));			\
 	}
 
+
 /* Declarations and definitions - for more details refer to public API. */
+
+#ifdef CONFIG_DESKTOP_EVENT_MANAGER_TRACE_EVENT_EXECUTION
+
+#define _ARG_LABELS_DEFINE(...) \
+	const static char *log_arg_labels[] __used = \
+	{"mem_address", __VA_ARGS__}
+
+#define _ARG_TYPES_DEFINE(...) \
+	const static enum profiler_arg log_arg_types[] __used = \
+	 {PROFILER_ARG_U32, __VA_ARGS__}
+
+#else	
+
+#define _ARG_LABELS_DEFINE(...) \
+	const static char *log_arg_labels[] __used = \
+	{__VA_ARGS__}
+
+#define _ARG_TYPES_DEFINE(...) \
+	const static enum profiler_arg log_arg_types[] __used = \
+	{__VA_ARGS__}
+
+#endif	
+
+
+#define _EVENT_MEM_ALLOCATE_PROFILER_ID(ename) 			\
+	static u16_t ename __used                           	\
+	__attribute__((__section__("profiler_ids")));		\
+		
+
+#define _EVENT_INFO_DEFINE(ename, types, labels, log_arg_func)			\
+	_ARG_LABELS_DEFINE(labels);					 	\
+	_ARG_TYPES_DEFINE(types);						\
+        const static struct event_info _CONCAT(ename, _info) __used       	\
+        __attribute__((__section__("event_infos"))) = {                         \
+		                .log_arg_fn      = log_arg_func,    	        \
+		                .log_arg_cnt     = ARRAY_SIZE(log_arg_labels), 	\
+	       			.log_arg_labels  = log_arg_labels,     		\
+				.log_arg_types	 = log_arg_types                \
+		        }                                                                                                           
+          
 
 #define _EVENT_LISTENER(lname, notification_fn)					\
 	const struct event_listener _CONCAT(__event_listener_, lname) __used	\
@@ -143,7 +183,7 @@ extern "C" {
 	_EVENT_TYPECHECK_FN(ename)
 
 
-#define _EVENT_TYPE_DEFINE(ename, print_fn)										\
+#define _EVENT_TYPE_DEFINE(ename, print_fn, ev_info_struct)								\
 	_EVENT_SUBSCRIBERS_DEFINE(ename);										\
 	const struct event_type _CONCAT(__event_type_, ename) __used							\
 	__attribute__((__section__("event_types"))) = {									\
@@ -159,6 +199,7 @@ extern "C" {
 			[_SUBS_PRIO_FINAL]	= _EVENT_SUBSCRIBERS_STOP(ename, _SUBS_PRIO_ID(_SUBS_PRIO_FINAL)),	\
 		},													\
 		.print_event			= print_fn,								\
+		.ev_info			= ev_info_struct,							\
 	}
 
 

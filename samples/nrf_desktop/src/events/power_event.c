@@ -6,7 +6,7 @@
 
 #include "power_event.h"
 
-EVENT_TYPE_DEFINE(power_down_event, NULL);
+EVENT_TYPE_DEFINE(power_down_event, NULL, NULL);
 
 static void print_event(const struct event_header *eh)
 {
@@ -15,4 +15,4 @@ static void print_event(const struct event_header *eh)
 	printk("requested by %s", event->module_name);
 }
 
-EVENT_TYPE_DEFINE(keep_active_event, print_event);
+EVENT_TYPE_DEFINE(keep_active_event, print_event, NULL);
