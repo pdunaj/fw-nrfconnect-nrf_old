@@ -1,0 +1,19 @@
+menu "System profiler"
+
+config PROFILER
+	bool"Enable system profiler"
+	default n
+
+config MAX_NUMBER_OF_CUSTOM_EVENTS
+	int "Maximum number of stored custom events"
+	default 32
+
+config PROFILER_CUSTOM_EVENT_BUF_LEN
+	int "Length of data buffer for custom event data(in bytes)"
+	default 64
+
+config MAX_LENGTH_OF_CUSTOM_EVENTS_DESCRIPTIONS
+	int "Maximum number of characters used to describe single event type"	
+	default 128
+
+endmenu
