@@ -15,6 +15,7 @@
 #include <hal/nrf_gpiote.h>
 
 #include <misc/printk.h>
+#include <profiler.h>
 
 #include "power_event.h"
 
@@ -168,7 +169,7 @@ static bool event_handler(const struct event_header *eh)
 
 	if (is_power_down_event(eh)) {
 		SYS_LOG_INF("power down the board");
-
+		profiler_term();
 		/* Port events are needed to leave system off state */
 		nrf_gpiote_int_enable(GPIOTE_INTENSET_PORT_Msk);
 		irq_enable(GPIOTE_IRQn);
